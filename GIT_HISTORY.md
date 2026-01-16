@@ -5,11 +5,15 @@
 | 分支名称 | 说明 | 状态 |
 | :--- | :--- | :--- |
 | **master** | 主分支，包含最新的稳定代码 (CSS 模块化重构完成) | 🟢 稳定 |
-| **feature/todo-list-v2** | 待办事项功能开发 (V2版本，独立样式) | � 开发中 (当前分支) |
+| **feature/todo-list-v2** | 待办事项功能开发 (V2版本，独立样式) | 🚀 开发中 (当前分支) |
 | **yuanshi-beifen** | 原始备份分支，指向重构前的 Vanilla JS 版本 | 🔒 存档 (只读) |
 | **gongneng-shujubeifen** | 旧功能分支 | ⚠️ 已废弃 |
 
 ## 版本历史
+
+*   **feature/todo-list-v2**:
+    *   `Fix: Restore navigation and modal styles` - 修复导航按钮点击无反应及弹窗样式丢失问题
+    *   `Feat: Implement Todo list` - 实现待办事项功能
 
 *   **master**:
     *   `Refactor: Modularize CSS architecture` - CSS 架构重构，拆分为模块化文件

@@ -5,6 +5,36 @@
 }
 
 /* 左侧列表样式 */
+#todo-calendar-container {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+}
+
+/* 覆盖 Flatpickr 默认样式使其适应侧边栏 */
+.flatpickr-calendar.inline {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+/* 日历上的事件小点 */
+.event-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #f56c6c;
+    position: absolute;
+    bottom: 2px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.flatpickr-day {
+    position: relative; /* 确保小点绝对定位相对于日期格 */
+}
+
 .badge {
     background-color: #f56c6c;
     color: white;
