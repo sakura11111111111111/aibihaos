@@ -3,7 +3,7 @@ import Swal from 'sweetalert2';
 import flatpickr from 'flatpickr';
 import { Mandarin } from 'flatpickr/dist/l10n/zh.js';
 import 'flatpickr/dist/flatpickr.min.css';
-import { allNotes, saveNotes } from '../store.js';
+import { allNotes, saveNotes, getReviewModeById } from '../store.js';
 
 // Setup flatpickr locale
 if (Mandarin) {
@@ -67,8 +67,11 @@ export function initializeTodoView() {
     // 辅助函数：计算一篇笔记的所有未来复习日期
     function calculateFutureReviewDates(note) {
         if (!note.review) return [];
-        const modeId = note.review.modeId;
-        const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
+        
+        // 动态获取模式间隔
+        const mode = getReviewModeById(note.review.modeId);
+        const intervals = mode ? mode.intervals : [1, 2, 4, 7, 15, 30]; // Fallback
+        
         const dates = [];
         
         // 基础日期：下次复习日期
@@ -213,9 +216,11 @@ export function initializeTodoView() {
         reviewContent.innerHTML = contentHtml;
         reviewContent.scrollTop = 0;
 
-        const modeId = note.review.modeId;
+        // 动态获取模式间隔
+        const mode = getReviewModeById(note.review.modeId);
+        const intervals = mode ? mode.intervals : [1, 2, 4, 7, 15, 30]; // Fallback
+        
         const currentIdx = note.review.currentIntervalIndex;
-        const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
         
         // 计算下一个正常的间隔（用于"记住"按钮提示）
         const nextIdx = currentIdx + 1;
@@ -243,7 +248,10 @@ export function initializeTodoView() {
             return;
         }
 
-        const intervals = currentSelectedNote.review.modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
+        // 动态获取模式间隔
+        const mode = getReviewModeById(currentSelectedNote.review.modeId);
+        const intervals = mode ? mode.intervals : [1, 2, 4, 7, 15, 30]; // Fallback
+
         let nextIdx = currentSelectedNote.review.currentIntervalIndex;
         let nextDateOffset = 1; // 默认明天
         let message = '';

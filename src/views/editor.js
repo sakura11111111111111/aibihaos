@@ -8,7 +8,7 @@ import 'quill/dist/quill.snow.css';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
-import { categories, allNotes, saveNotes, loadNotes } from '../store.js';
+import { categories, allNotes, saveNotes, loadNotes, reviewModes, addReviewMode, deleteReviewMode } from '../store.js';
 import { findCategoryById } from '../utils.js';
 import { buildCategoryTreeHTML } from '../components.js';
 
@@ -90,7 +90,7 @@ export function initializeEditor() {
             } 
 
             if (selectedReviewModeId) { 
-                const mode = findReviewModeById(selectedReviewModeId); 
+                const mode = reviewModes.find(m => m.id === selectedReviewModeId);
                 if(mode && reviewModeTagContainer) { 
                    reviewModeTagContainer.innerHTML = `<span>${mode.name}</span><button class="tag-close-btn" title="清除选择">&times;</button>`; 
                    reviewModeBtn.classList.add('selected'); 
@@ -116,10 +116,7 @@ export function initializeEditor() {
     renderBlocks(); // 初次渲染笔记块
 
     // --- 6. 内部函数定义 ---
-    const reviewModes = [
-        { id: 'ebbinghaus_default', name: '艾宾浩斯 (默认)', intervals: [1, 2, 4, 7, 15, 30], isSystem: true },
-        { id: 'custom_weekly', name: '每周回顾', intervals: [7, 14, 21, 28], isSystem: false }
-    ];
+    // Removed local reviewModes definition, using store instead.
 
     if (previewBlocksContainer) {
         new Sortable(previewBlocksContainer, {
@@ -152,9 +149,12 @@ export function initializeEditor() {
         }
     }
 
-    function findReviewModeById(id) {
-        return reviewModes.find(mode => mode.id === id) || null;
-    }
+    // --- 7. 内部函数定义 (Removed findReviewModeById as we use store now) ---
+
+    // 辅助：从 store 中查找 mode (如果还需要局部查找)
+    // function findReviewModeById(id) {
+    //    return reviewModes.find(mode => mode.id === id) || null;
+    // }
 
     if (completeEditBtn) { 
         completeEditBtn.addEventListener('click', () => { 
@@ -229,7 +229,10 @@ export function initializeEditor() {
                         container.querySelectorAll('.review-mode-item').forEach(el => el.classList.remove('selected')); 
                         itemEl.classList.add('selected'); 
                     }); 
-                    document.getElementById('manage-review-modes-link').addEventListener('click', (e) => { e.preventDefault(); Swal.fire('功能待开发', '管理自定义复习模式的功能将在后续版本中提供。', 'info'); }); 
+                    document.getElementById('manage-review-modes-link').addEventListener('click', (e) => { 
+                        e.preventDefault(); 
+                        showManageReviewModesModal(); 
+                    }); 
                 }, 
                 preConfirm: () => { 
                     const selectedEl = document.querySelector('#review-mode-list-container .review-mode-item.selected'); 
@@ -240,7 +243,8 @@ export function initializeEditor() {
 
             if (modeId) { 
                 selectedReviewModeId = modeId; 
-                const mode = findReviewModeById(selectedReviewModeId); 
+                // Using store function
+                const mode = reviewModes.find(m => m.id === selectedReviewModeId);
                 const modeName = mode ? mode.name : '未知模式'; 
                 const tagContainer = document.getElementById('selected-review-mode-tag'); 
                 tagContainer.innerHTML = `<span>${modeName}</span><button class="tag-close-btn" title="清除选择">&times;</button>`; 
@@ -252,6 +256,103 @@ export function initializeEditor() {
                 }); 
             } 
         }); 
+    }
+
+    // --- 新增：管理复习模式弹窗 ---
+    async function showManageReviewModesModal() {
+        const buildManageListHTML = () => {
+            let html = '<div class="manage-mode-list" style="max-height: 300px; overflow-y: auto; text-align: left;">';
+            reviewModes.forEach(mode => {
+                html += `
+                <div class="manage-mode-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #eee;">
+                    <div>
+                        <div style="font-weight: bold;">${mode.name}</div>
+                        <div style="font-size: 12px; color: #666;">${mode.description}</div>
+                        <div style="font-size: 12px; color: #999;">间隔: ${mode.intervals.join(', ')}</div>
+                    </div>
+                    ${!mode.isSystem ? `<button class="delete-mode-btn" data-id="${mode.id}" style="color: #f56c6c; border: none; background: none; cursor: pointer;"><i class="fas fa-trash"></i></button>` : '<span style="font-size: 12px; color: #999;">系统内置</span>'}
+                </div>`;
+            });
+            html += '</div>';
+            return html;
+        };
+
+        await Swal.fire({
+            title: '管理复习模式',
+            html: `
+                ${buildManageListHTML()}
+                <button id="add-new-mode-btn" class="swal2-confirm swal2-styled" style="background-color: #67c23a; margin-top: 15px; width: 100%;">+ 新增自定义模式</button>
+            `,
+            showConfirmButton: false,
+            showCloseButton: true,
+            didOpen: () => {
+                // 绑定删除事件
+                const container = Swal.getHtmlContainer();
+                container.querySelectorAll('.delete-mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const id = btn.dataset.id;
+                        Swal.fire({
+                            title: '确认删除?',
+                            text: "删除后无法恢复，且使用该模式的旧笔记可能受影响。",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: '删除',
+                            cancelButtonText: '取消'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                if (deleteReviewMode(id)) {
+                                    Swal.fire('已删除', '', 'success').then(() => showManageReviewModesModal());
+                                }
+                            }
+                        });
+                    });
+                });
+
+                // 绑定新增事件
+                document.getElementById('add-new-mode-btn').addEventListener('click', async () => {
+                    const { value: formValues } = await Swal.fire({
+                        title: '创建新模式',
+                        html: `
+                            <input id="swal-mode-name" class="swal2-input" placeholder="模式名称 (如: 考研冲刺)">
+                            <input id="swal-mode-intervals" class="swal2-input" placeholder="复习间隔 (如: 1,2,4,7)">
+                            <div style="font-size: 12px; color: #666; text-align: left; margin-top: 5px;">
+                                * 请输入以逗号分隔的数字，表示每次复习距离上一次的天数。<br>
+                                例如 "1, 2, 5" 表示：<br>
+                                第1次: 1天后<br>
+                                第2次: 再过2天 (总第3天)<br>
+                                第3次: 再过5天 (总第8天)
+                            </div>
+                        `,
+                        focusConfirm: false,
+                        showCancelButton: true,
+                        preConfirm: () => {
+                            const name = document.getElementById('swal-mode-name').value;
+                            const intervalsStr = document.getElementById('swal-mode-intervals').value;
+                            
+                            if (!name || !intervalsStr) {
+                                Swal.showValidationMessage('请填写完整信息');
+                                return false;
+                            }
+                            
+                            // 简单的验证和解析
+                            const intervals = intervalsStr.split(/[,，]/).map(s => parseInt(s.trim())).filter(n => !isNaN(n) && n > 0);
+                            
+                            if (intervals.length === 0) {
+                                Swal.showValidationMessage('请输入有效的数字间隔');
+                                return false;
+                            }
+                            
+                            return { name, intervals };
+                        }
+                    });
+
+                    if (formValues) {
+                        addReviewMode(formValues.name, formValues.intervals);
+                        Swal.fire('创建成功', '', 'success').then(() => showManageReviewModesModal());
+                    }
+                });
+            }
+        });
     }
 
     if (saveNoteBtn) { 
@@ -273,7 +374,7 @@ export function initializeEditor() {
             }; 
 
             if (selectedReviewModeId) { 
-                const mode = findReviewModeById(selectedReviewModeId); 
+                const mode = reviewModes.find(m => m.id === selectedReviewModeId);
                 if (mode && mode.intervals.length > 0) { 
                     const addDaysAndFormat = (d, days) => { const date = new Date(d); date.setDate(date.getDate() + days); return date.toISOString().split('T')[0]; }; 
                     finalNoteObject.review = { modeId: selectedReviewModeId, currentIntervalIndex: 0, nextReviewDate: addDaysAndFormat(selectedDate, mode.intervals[0]), lastReviewDate: null }; 
