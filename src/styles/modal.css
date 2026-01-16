@@ -1,0 +1,109 @@
+/* --- 归档弹窗内的分类树样式 --- */
+.category-modal-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#category-tree-container {
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
+    padding: 5px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
+
+.category-tree {
+    list-style: none;
+    padding-left: 0;
+}
+.category-tree ul {
+    list-style: none;
+    padding-left: 25px; /* 子类别缩进 */
+}
+
+.tree-item {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 2px 0;
+}
+
+.tree-item .item-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.tree-item .item-name {
+    flex-grow: 1; /* 让名称占据尽可能多的空间 */
+}
+
+.tree-item:hover {
+    background-color: #f0f5ff;
+}
+
+.tree-item.selected {
+    background-color: #e0edff;
+    font-weight: bold;
+}
+
+.tree-item .item-actions {
+    display: none; /* 默认隐藏操作按钮 */
+    gap: 5px;
+}
+
+.tree-item:hover .item-actions {
+    display: flex; /* 悬浮时显示 */
+}
+
+/* --- 复习模式弹窗样式 --- */
+.review-modal-header {
+    text-align: right;
+    margin-bottom: 10px;
+}
+.review-modal-header a {
+    font-size: 13px;
+    color: #409eff;
+    text-decoration: none;
+}
+#review-mode-list-container {
+    border: 1px solid #eee;
+    border-radius: 6px;
+    max-height: 300px;
+    overflow-y: auto;
+}
+.review-mode-list {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    text-align: left;
+}
+.review-mode-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    border-bottom: 1px solid #f5f5f5;
+}
+.review-mode-item:last-child {
+    border-bottom: none;
+}
+.review-mode-item:hover {
+    background-color: #f5faff;
+}
+.review-mode-item.selected {
+    background-color: #eaf5ff;
+    font-weight: bold;
+    color: #3a8ee6;
+}
+.review-mode-item .item-detail {
+    font-size: 12px;
+    color: #999;
+}
+.review-mode-item.selected .item-detail {
+    color: #3a8ee6;
+}

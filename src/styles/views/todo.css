@@ -1,0 +1,107 @@
+/* 待办事项容器 */
+.todo-container {
+    height: 100vh;
+    display: flex;
+}
+
+/* 左侧列表样式 */
+.badge {
+    background-color: #f56c6c;
+    color: white;
+    border-radius: 10px;
+    padding: 2px 8px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.todo-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.todo-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.todo-item:hover {
+    background-color: #f5f7fa;
+}
+
+.todo-item.selected {
+    background-color: #ecf5ff;
+    border-left: 3px solid #409eff;
+}
+
+.todo-item-content {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.todo-title {
+    font-size: 15px;
+    color: #333;
+    font-weight: 500;
+}
+
+.todo-meta {
+    font-size: 12px;
+    color: #909399;
+}
+
+.arrow-icon {
+    color: #c0c4cc;
+    font-size: 12px;
+}
+
+.empty-state-list {
+    text-align: center;
+    padding: 40px 20px;
+    color: #909399;
+}
+.empty-state-list i {
+    font-size: 32px;
+    margin-bottom: 10px;
+    color: #67c23a;
+}
+
+/* 右侧预览样式 */
+.empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #c0c4cc;
+}
+
+.empty-state i {
+    font-size: 48px;
+    margin-bottom: 20px;
+}
+
+.review-actions {
+    background-color: #f9fafb;
+    border-top: 1px solid #e4e7ed;
+    padding: 15px 30px;
+}
+
+.review-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #606266;
+    font-size: 14px;
+}
+
+.review-info i {
+    color: #909399;
+    font-size: 12px;
+}

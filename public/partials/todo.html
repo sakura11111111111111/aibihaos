@@ -1,0 +1,38 @@
+<div class="main-workspace todo-container">
+    <!-- 左侧：待办任务列表 -->
+    <div id="todo-list-panel" class="panel">
+        <div class="panel-header">
+            <h2><i class="fas fa-check-square" style="color: #409eff; margin-right: 10px;"></i>今日复习任务</h2>
+            <span id="todo-count" class="badge">0</span>
+        </div>
+        <div class="panel-content">
+            <ul id="todo-list" class="todo-list">
+                <!-- 任务项将通过 JS 动态生成 -->
+                <li class="placeholder-text">正在检查您的复习计划...</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 右侧：笔记预览与操作 -->
+    <div id="todo-preview-panel" class="panel">
+        <div class="panel-header">
+            <h2 id="review-note-title">请选择一个任务开始复习</h2>
+        </div>
+        <div id="review-note-content" class="panel-content ql-editor">
+            <div class="empty-state">
+                <i class="fas fa-book-reader"></i>
+                <p>点击左侧任务，开始沉浸式复习</p>
+            </div>
+        </div>
+        <div class="panel-footer review-actions" style="display: none;">
+            <div class="review-info">
+                <span>当前阶段: <b id="current-stage">1</b></span>
+                <i class="fas fa-arrow-right"></i>
+                <span>下一次: <b id="next-interval">2天后</b></span>
+            </div>
+            <button id="complete-review-btn" class="action-btn-primary">
+                <i class="fas fa-check"></i> 完成今日复习
+            </button>
+        </div>
+    </div>
+</div>
