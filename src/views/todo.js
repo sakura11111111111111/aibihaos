@@ -36,6 +36,36 @@ export function initializeTodoView() {
     let currentSelectedNote = null;
     let currentSelectedDate = new Date().toISOString().split('T')[0]; // 默认为今天
 
+    // 辅助函数：计算一篇笔记的所有未来复习日期
+    function calculateFutureReviewDates(note) {
+        if (!note.review) return [];
+        
+        const modeId = note.review.modeId;
+        const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
+        const dates = [];
+        
+        // 从当前保存的 nextReviewDate 开始推算
+        // 注意：这只是一个预览逻辑，假设用户会按时复习
+        let baseDate = new Date(note.review.nextReviewDate);
+        
+        // 添加当前的下一次复习日期
+        dates.push(note.review.nextReviewDate);
+        
+        // 推算后续的日期
+        let currentIdx = note.review.currentIntervalIndex;
+        
+        // 从下一个阶段开始，累加天数
+        for (let i = currentIdx + 1; i < intervals.length; i++) {
+            const intervalDays = intervals[i];
+            // 每次复习后，下一次复习时间是：完成日期 + 间隔
+            // 这里我们假设用户在 baseDate 那天完成了复习
+            baseDate.setDate(baseDate.getDate() + intervalDays);
+            dates.push(baseDate.toISOString().split('T')[0]);
+        }
+        
+        return dates;
+    }
+
     // 3. 初始化日历
     if (calendarContainer) {
         flatpickr(calendarContainer, {
@@ -49,9 +79,12 @@ export function initializeTodoView() {
             // 进阶：标记有任务的日期
             onDayCreate: function(dObj, dStr, fp, dayElem) {
                 const date = dayElem.dateObj.toISOString().split('T')[0];
-                const hasTask = allNotes.some(note => 
-                    note.review && note.review.nextReviewDate === date
-                );
+                
+                // 检查是否有笔记在这一天有复习任务（包含当前和未来推算的）
+                const hasTask = allNotes.some(note => {
+                    const futureDates = calculateFutureReviewDates(note);
+                    return futureDates.includes(date);
+                });
                 
                 if (hasTask) {
                     dayElem.innerHTML += "<span class='event-dot'></span>";
@@ -70,16 +103,17 @@ export function initializeTodoView() {
         todoDateTitle.textContent = isToday ? '今日复习任务' : `${currentSelectedDate} 的复习任务`;
 
         // 筛选逻辑：精准匹配选中的日期
-        // 注意：之前的逻辑是 <= today，现在改为 === currentSelectedDate
-        // 这样可以查看未来某一天的具体任务
         const reviewTasks = allNotes.filter(note => {
             if (!note.review) return false;
+            
             // 如果是今天，可以包含之前漏掉的（过期任务）
             if (isToday) {
                 return note.review.nextReviewDate <= today;
             }
-            // 如果是未来日期，只显示那一天到期的
-            return note.review.nextReviewDate === currentSelectedDate;
+            
+            // 如果是未来日期，检查该日期是否在推算的复习节点中
+            const futureDates = calculateFutureReviewDates(note);
+            return futureDates.includes(currentSelectedDate);
         });
 
         todoCountBadge.textContent = reviewTasks.length;
@@ -155,6 +189,18 @@ export function initializeTodoView() {
     completeReviewBtn.addEventListener('click', async () => {
         if (!currentSelectedNote) return;
 
+        // 如果点击的是未来任务（预览模式），不允许“完成复习”
+        // 逻辑：如果当前选中的日期 > 今天，说明是查看未来的任务，不能提前完成
+        const today = new Date().toISOString().split('T')[0];
+        if (currentSelectedDate > today) {
+            await Swal.fire({
+                icon: 'info',
+                title: '预览模式',
+                text: '这是未来的复习任务，请等到那天再来打卡哦！',
+            });
+            return;
+        }
+
         await Swal.fire({
             icon: 'success',
             title: '复习完成！',
@@ -179,7 +225,7 @@ export function initializeTodoView() {
         }
 
         saveNotes();
-        renderTodoList(); // 重新刷新列表，任务应该会消失（因为日期变了）
+        renderTodoList(); // 重新刷新列表
         
         reviewTitle.textContent = "请选择一个任务开始复习";
         reviewContent.innerHTML = `
