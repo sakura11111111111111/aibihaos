@@ -5,13 +5,58 @@
 }
 
 /* 左侧列表样式 */
+.calendar-header {
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s;
+    border-radius: 6px;
+    padding: 10px !important; /* Override panel-header padding */
+}
+
+.calendar-header:hover {
+    background-color: #f5f7fa;
+}
+
+.calendar-toggle-btn {
+    font-size: 16px !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #409eff !important;
+    margin: 0 !important;
+}
+
+.toggle-icon {
+    margin-left: auto;
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.calendar-wrapper {
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    max-height: 400px; /* 足够容纳日历的高度 */
+    opacity: 1;
+}
+
+.calendar-wrapper.collapsed {
+    max-height: 0;
+    opacity: 0;
+    margin-bottom: 0 !important;
+}
+
+.calendar-wrapper.collapsed .toggle-icon {
+    transform: rotate(-90deg);
+}
+
 #todo-calendar-container {
     margin-bottom: 10px;
     display: flex;
     justify-content: center;
+    padding-top: 10px;
 }
 
-/* 覆盖 Flatpickr 默认样式使其适应侧边栏 */
+/* 覆盖 Flatpickr 默认样式 */
 .flatpickr-calendar.inline {
     width: 100% !important;
     max-width: 100% !important;
@@ -19,20 +64,23 @@
     border: 1px solid #e0e0e0 !important;
 }
 
-/* 日历上的事件小点 */
+/* 日历上的事件小点 - 修复显示问题 */
+.flatpickr-day {
+    position: relative;
+    overflow: visible !important; /* 关键修复：允许小点显示 */
+}
+
 .event-dot {
-    width: 4px;
-    height: 4px;
+    width: 6px;
+    height: 6px;
     border-radius: 50%;
     background-color: #f56c6c;
     position: absolute;
     bottom: 2px;
     left: 50%;
     transform: translateX(-50%);
-}
-
-.flatpickr-day {
-    position: relative; /* 确保小点绝对定位相对于日期格 */
+    z-index: 10; /* 确保在最上层 */
+    border: 1px solid white; /* 增加白色描边，在选中状态下更清晰 */
 }
 
 .badge {
@@ -117,10 +165,20 @@
     margin-bottom: 20px;
 }
 
+/* 底部复习操作栏优化 */
 .review-actions {
-    background-color: #f9fafb;
+    background-color: #fff;
     border-top: 1px solid #e4e7ed;
-    padding: 15px 30px;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+}
+
+.review-status-bar {
+    display: flex;
+    justify-content: center;
 }
 
 .review-info {
@@ -129,9 +187,59 @@
     gap: 15px;
     color: #606266;
     font-size: 14px;
+    background-color: #f4f4f5;
+    padding: 5px 15px;
+    border-radius: 15px;
 }
 
 .review-info i {
     color: #909399;
     font-size: 12px;
 }
+
+.review-btn-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.review-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 10px 25px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    color: white;
+    flex: 1;
+    max-width: 120px;
+    justify-content: center;
+}
+
+.review-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.review-btn:active {
+    transform: translateY(0);
+}
+
+.btn-forget {
+    background-color: #f56c6c; /* Red */
+}
+.btn-forget:hover { background-color: #f78989; }
+
+.btn-blur {
+    background-color: #e6a23c; /* Orange */
+}
+.btn-blur:hover { background-color: #ebb563; }
+
+.btn-remember {
+    background-color: #67c23a; /* Green */
+}
+.btn-remember:hover { background-color: #85ce61; }

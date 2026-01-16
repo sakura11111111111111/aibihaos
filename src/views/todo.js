@@ -14,7 +14,7 @@ export function initializeTodoView() {
     // 1. 初始化两栏布局
     if (document.querySelector('#todo-list-panel')) {
         Split(['#todo-list-panel', '#todo-preview-panel'], { 
-            sizes: [35, 65], // 调整比例，给日历多一点空间
+            sizes: [35, 65], 
             minSize: [320, 400], 
             gutterSize: 8, 
             cursor: 'col-resize' 
@@ -30,8 +30,17 @@ export function initializeTodoView() {
     const reviewActionsFooter = document.querySelector('.review-actions');
     const currentStageSpan = document.getElementById('current-stage');
     const nextIntervalSpan = document.getElementById('next-interval');
-    const completeReviewBtn = document.getElementById('complete-review-btn');
+    
+    // 日历相关元素
     const calendarContainer = document.getElementById('todo-calendar-container');
+    const calendarWrapper = document.getElementById('todo-calendar-wrapper');
+    const toggleCalendarBtn = document.getElementById('toggle-calendar-btn');
+    const toggleIcon = document.querySelector('.toggle-icon');
+
+    // 复习按钮
+    const forgetBtn = document.getElementById('review-forget-btn');
+    const blurBtn = document.getElementById('review-blur-btn');
+    const rememberBtn = document.getElementById('review-remember-btn');
 
     let currentSelectedNote = null;
     let currentSelectedDate = new Date().toISOString().split('T')[0]; // 默认为今天
@@ -39,48 +48,32 @@ export function initializeTodoView() {
     // 辅助函数：计算一篇笔记的所有未来复习日期
     function calculateFutureReviewDates(note) {
         if (!note.review) return [];
-        
         const modeId = note.review.modeId;
         const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
         const dates = [];
-        
-        // 从当前保存的 nextReviewDate 开始推算
-        // 注意：这只是一个预览逻辑，假设用户会按时复习
         let baseDate = new Date(note.review.nextReviewDate);
-        
-        // 添加当前的下一次复习日期
         dates.push(note.review.nextReviewDate);
-        
-        // 推算后续的日期
         let currentIdx = note.review.currentIntervalIndex;
-        
-        // 从下一个阶段开始，累加天数
         for (let i = currentIdx + 1; i < intervals.length; i++) {
             const intervalDays = intervals[i];
-            // 每次复习后，下一次复习时间是：完成日期 + 间隔
-            // 这里我们假设用户在 baseDate 那天完成了复习
             baseDate.setDate(baseDate.getDate() + intervalDays);
             dates.push(baseDate.toISOString().split('T')[0]);
         }
-        
         return dates;
     }
 
-    // 3. 初始化日历
+    // 3. 初始化日历 (默认折叠)
     if (calendarContainer) {
         flatpickr(calendarContainer, {
-            inline: true, // 内联显示，不作为弹窗
+            inline: true,
             locale: "zh",
             defaultDate: currentSelectedDate,
             onChange: (selectedDates, dateStr) => {
                 currentSelectedDate = dateStr;
-                renderTodoList(); // 日期改变时刷新列表
+                renderTodoList(); 
             },
-            // 进阶：标记有任务的日期
             onDayCreate: function(dObj, dStr, fp, dayElem) {
                 const date = dayElem.dateObj.toISOString().split('T')[0];
-                
-                // 检查是否有笔记在这一天有复习任务（包含当前和未来推算的）
                 const hasTask = allNotes.some(note => {
                     const futureDates = calculateFutureReviewDates(note);
                     return futureDates.includes(date);
@@ -94,24 +87,31 @@ export function initializeTodoView() {
         });
     }
 
-    // 4. 渲染任务列表 (核心逻辑)
+    // 日历折叠逻辑
+    if (toggleCalendarBtn && calendarWrapper) {
+        toggleCalendarBtn.addEventListener('click', () => {
+            const isCollapsed = calendarWrapper.classList.contains('collapsed');
+            if (isCollapsed) {
+                calendarWrapper.classList.remove('collapsed');
+                toggleIcon.classList.remove('fa-chevron-down');
+                toggleIcon.classList.add('fa-chevron-up');
+            } else {
+                calendarWrapper.classList.add('collapsed');
+                toggleIcon.classList.remove('fa-chevron-up');
+                toggleIcon.classList.add('fa-chevron-down');
+            }
+        });
+    }
+
+    // 4. 渲染任务列表
     function renderTodoList() {
         const today = new Date().toISOString().split('T')[0];
         const isToday = currentSelectedDate === today;
-        
-        // 更新标题
         todoDateTitle.textContent = isToday ? '今日复习任务' : `${currentSelectedDate} 的复习任务`;
 
-        // 筛选逻辑：精准匹配选中的日期
         const reviewTasks = allNotes.filter(note => {
             if (!note.review) return false;
-            
-            // 如果是今天，可以包含之前漏掉的（过期任务）
-            if (isToday) {
-                return note.review.nextReviewDate <= today;
-            }
-            
-            // 如果是未来日期，检查该日期是否在推算的复习节点中
+            if (isToday) return note.review.nextReviewDate <= today;
             const futureDates = calculateFutureReviewDates(note);
             return futureDates.includes(currentSelectedDate);
         });
@@ -140,10 +140,9 @@ export function initializeTodoView() {
         `).join('');
     }
 
-    // 初始渲染
     renderTodoList();
 
-    // 5. 事件监听：点击任务 (复用之前的逻辑)
+    // 5. 列表点击事件
     todoListContainer.addEventListener('click', (e) => {
         const item = e.target.closest('.todo-item');
         if (!item) return;
@@ -159,7 +158,7 @@ export function initializeTodoView() {
         }
     });
 
-    // 6. 渲染右侧预览 (复用之前的逻辑)
+    // 6. 渲染右侧预览
     function renderReviewPreview(note) {
         reviewTitle.textContent = note.title;
         const contentHtml = note.blocks.map(b => b.content).join('');
@@ -169,71 +168,87 @@ export function initializeTodoView() {
         const modeId = note.review.modeId;
         const currentIdx = note.review.currentIntervalIndex;
         const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
+        
+        // 计算下一个正常的间隔（用于"记住"按钮提示）
         const nextIdx = currentIdx + 1;
-        const isLastStage = nextIdx >= intervals.length;
+        const nextIntervalDays = nextIdx < intervals.length ? intervals[nextIdx] : 0;
         
         reviewActionsFooter.style.display = 'flex';
         currentStageSpan.textContent = `第${currentIdx + 1}阶段`;
         
-        if (isLastStage) {
-            nextIntervalSpan.textContent = "已完成所有复习！";
-            completeReviewBtn.innerHTML = '<i class="fas fa-flag-checkered"></i> 归档并结束复习';
+        // 更新文案提示
+        if (nextIdx >= intervals.length) {
+            nextIntervalSpan.textContent = "即将归档";
         } else {
-            const days = intervals[nextIdx];
-            nextIntervalSpan.textContent = `${days}天后`;
-            completeReviewBtn.innerHTML = '<i class="fas fa-check"></i> 完成复习';
+            nextIntervalSpan.textContent = `${nextIntervalDays}天后`;
         }
     }
 
-    // 7. 事件监听：完成复习
-    completeReviewBtn.addEventListener('click', async () => {
+    // 7. 处理复习逻辑
+    async function handleReview(action) {
         if (!currentSelectedNote) return;
 
-        // 如果点击的是未来任务（预览模式），不允许“完成复习”
-        // 逻辑：如果当前选中的日期 > 今天，说明是查看未来的任务，不能提前完成
+        // 预览模式下禁止操作
         const today = new Date().toISOString().split('T')[0];
         if (currentSelectedDate > today) {
-            await Swal.fire({
-                icon: 'info',
-                title: '预览模式',
-                text: '这是未来的复习任务，请等到那天再来打卡哦！',
-            });
+            await Swal.fire({ icon: 'info', title: '预览模式', text: '这是未来的任务，请等到那天再来打卡！' });
             return;
         }
 
-        await Swal.fire({
-            icon: 'success',
-            title: '复习完成！',
-            text: '记忆加深了一点点~',
-            timer: 1000,
-            showConfirmButton: false
-        });
-
         const intervals = currentSelectedNote.review.modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
-        const nextIdx = currentSelectedNote.review.currentIntervalIndex + 1;
+        let nextIdx = currentSelectedNote.review.currentIntervalIndex;
+        let nextDateOffset = 1; // 默认明天
+        let message = '';
 
-        if (nextIdx >= intervals.length) {
-            currentSelectedNote.review = null; 
+        // 核心算法
+        switch (action) {
+            case 'forget': // 忘记 -> 重置到起点，明天复习
+                nextIdx = 0;
+                nextDateOffset = 1;
+                message = '没关系，重新开始巩固！';
+                break;
+            case 'blur': // 模糊 -> 保持当前进度，明天强化
+                // nextIdx 不变
+                nextDateOffset = 1;
+                message = '已安排明天强化复习！';
+                break;
+            case 'remember': // 记住 -> 正常推进
+                nextIdx++;
+                if (nextIdx < intervals.length) {
+                    nextDateOffset = intervals[nextIdx];
+                }
+                message = '太棒了！记忆加深了！';
+                break;
+        }
+
+        // 归档判断
+        if (action === 'remember' && nextIdx >= intervals.length) {
+            currentSelectedNote.review = null;
+            await Swal.fire({ icon: 'success', title: '恭喜！', text: '这篇笔记已完成所有复习计划！', timer: 1500, showConfirmButton: false });
         } else {
-            const todayDate = new Date(); // 完成复习的时间基准是“今天”
-            const nextIntervalDays = intervals[nextIdx];
-            todayDate.setDate(todayDate.getDate() + nextIntervalDays);
+            // 更新下次时间
+            const todayDate = new Date();
+            todayDate.setDate(todayDate.getDate() + nextDateOffset);
             
             currentSelectedNote.review.currentIntervalIndex = nextIdx;
             currentSelectedNote.review.nextReviewDate = todayDate.toISOString().split('T')[0];
-            currentSelectedNote.review.lastReviewDate = new Date().toISOString().split('T')[0];
+            currentSelectedNote.review.lastReviewDate = today;
+
+            await Swal.fire({ icon: 'success', title: '打卡成功', text: message, timer: 1000, showConfirmButton: false });
         }
 
         saveNotes();
-        renderTodoList(); // 重新刷新列表
+        renderTodoList();
         
+        // 重置界面
         reviewTitle.textContent = "请选择一个任务开始复习";
-        reviewContent.innerHTML = `
-            <div class="empty-state">
-                <i class="fas fa-book-reader"></i>
-                <p>点击左侧任务，开始沉浸式复习</p>
-            </div>`;
+        reviewContent.innerHTML = `<div class="empty-state"><i class="fas fa-book-reader"></i><p>点击左侧任务，开始沉浸式复习</p></div>`;
         reviewActionsFooter.style.display = 'none';
         currentSelectedNote = null;
-    });
+    }
+
+    // 绑定按钮事件
+    if (forgetBtn) forgetBtn.addEventListener('click', () => handleReview('forget'));
+    if (blurBtn) blurBtn.addEventListener('click', () => handleReview('blur'));
+    if (rememberBtn) rememberBtn.addEventListener('click', () => handleReview('remember'));
 }
