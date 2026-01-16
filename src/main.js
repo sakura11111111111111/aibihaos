@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const homeBtn = document.getElementById('home-btn');
     const createNoteBtn = document.getElementById('create-note-btn');
     const allNotesBtn = document.getElementById('all-notes-btn');
+    const settingsBtn = document.getElementById('settings-btn');
 
     // Event listeners
     if (homeBtn) {
@@ -27,6 +28,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
     
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            loadPage('/partials/settings.html');
+        });
+    }
+
     // Initial load
     loadPage('/partials/welcome.html');
 });

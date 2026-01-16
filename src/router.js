@@ -1,5 +1,6 @@
 import { initializeEditor } from './views/editor.js';
 import { initializeAllNotesView } from './views/allNotes.js';
+import { initializeSettings } from './views/settings.js';
 
 export async function loadPage(url) {
     const appContainer = document.getElementById('app-container');
@@ -13,6 +14,8 @@ export async function loadPage(url) {
             initializeEditor();
         } else if (url.includes('all-notes')) {
             initializeAllNotesView();
+        } else if (url.includes('settings')) {
+            initializeSettings();
         }
     } catch (error) {
         console.error('Failed to load page: ', error);
