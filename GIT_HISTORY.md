@@ -11,6 +11,10 @@
 
 ## 版本历史
 
+*   **feature/review-modes-management**:
+    *   `Feat: Implement Manage Review Modes` - 实现复习模式管理功能（查看、新增自定义模式、删除）
+    *   `Refactor: Update Ebbinghaus schedule` - 调整系统默认艾宾浩斯复习间隔为 [1, 1, 2, 3, 5, 8, 15, 30, 60]
+
 *   **feature/todo-list-v2**:
     *   `Feat: Add reschedule review date functionality` - 新增自定义调整复习日期功能，允许用户手动延后或修改计划
     *   `Fix: Resolve date offset bug in calendar` - 彻底修复日历红点与任务日期不一致的问题(时区偏差)，使用本地日期计算逻辑
