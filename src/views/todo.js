@@ -34,7 +34,7 @@ export function initializeTodoView() {
     // 日历相关元素
     const calendarContainer = document.getElementById('todo-calendar-container');
     const calendarWrapper = document.getElementById('todo-calendar-wrapper');
-    const toggleCalendarBtn = document.getElementById('toggle-calendar-btn');
+    const calendarHeader = document.querySelector('.calendar-header');
     const toggleIcon = document.querySelector('.toggle-icon');
 
     // 复习按钮
@@ -62,9 +62,9 @@ export function initializeTodoView() {
         return dates;
     }
 
-    // 3. 初始化日历 (默认折叠)
+    // 3. 初始化日历
     if (calendarContainer) {
-        flatpickr(calendarContainer, {
+        const fp = flatpickr(calendarContainer, {
             inline: true,
             locale: "zh",
             defaultDate: currentSelectedDate,
@@ -80,23 +80,41 @@ export function initializeTodoView() {
                 });
                 
                 if (hasTask) {
-                    dayElem.innerHTML += "<span class='event-dot'></span>";
+                    const dot = document.createElement('span');
+                    dot.className = 'event-dot';
+                    dayElem.appendChild(dot);
                     dayElem.classList.add('has-event');
                 }
             }
         });
+
+        // 强制同步折叠状态：Flatpickr 初始化后，如果 wrapper 有 collapsed 类，强制隐藏
+        if (calendarWrapper && calendarWrapper.classList.contains('collapsed')) {
+            calendarWrapper.style.display = 'none';
+        }
     }
 
     // 日历折叠逻辑
-    if (toggleCalendarBtn && calendarWrapper) {
-        toggleCalendarBtn.addEventListener('click', () => {
+    if (calendarHeader && calendarWrapper) {
+        // 初始图标状态
+        if (calendarWrapper.classList.contains('collapsed')) {
+            toggleIcon.classList.remove('fa-chevron-up');
+            toggleIcon.classList.add('fa-chevron-down');
+        }
+
+        calendarHeader.addEventListener('click', () => {
             const isCollapsed = calendarWrapper.classList.contains('collapsed');
+            
             if (isCollapsed) {
+                // 展开
                 calendarWrapper.classList.remove('collapsed');
+                calendarWrapper.style.display = 'block'; // 显式显示
                 toggleIcon.classList.remove('fa-chevron-down');
                 toggleIcon.classList.add('fa-chevron-up');
             } else {
+                // 折叠
                 calendarWrapper.classList.add('collapsed');
+                calendarWrapper.style.display = 'none'; // 显式隐藏
                 toggleIcon.classList.remove('fa-chevron-up');
                 toggleIcon.classList.add('fa-chevron-down');
             }

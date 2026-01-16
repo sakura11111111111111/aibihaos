@@ -10,7 +10,9 @@
     user-select: none;
     transition: background-color 0.2s;
     border-radius: 6px;
-    padding: 10px !important; /* Override panel-header padding */
+    padding: 10px !important;
+    display: flex;
+    align-items: center;
 }
 
 .calendar-header:hover {
@@ -24,6 +26,7 @@
     gap: 10px;
     color: #409eff !important;
     margin: 0 !important;
+    width: 100%;
 }
 
 .toggle-icon {
@@ -33,16 +36,13 @@
 }
 
 .calendar-wrapper {
-    overflow: hidden;
-    transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
-    max-height: 400px; /* 足够容纳日历的高度 */
-    opacity: 1;
+    /* 移除 max-height 动画，改用 display 切换以确保兼容性 */
+    margin-bottom: 10px;
 }
 
+/* 强制隐藏 */
 .calendar-wrapper.collapsed {
-    max-height: 0;
-    opacity: 0;
-    margin-bottom: 0 !important;
+    display: none !important;
 }
 
 .calendar-wrapper.collapsed .toggle-icon {
@@ -50,7 +50,6 @@
 }
 
 #todo-calendar-container {
-    margin-bottom: 10px;
     display: flex;
     justify-content: center;
     padding-top: 10px;
@@ -62,25 +61,34 @@
     max-width: 100% !important;
     box-shadow: none !important;
     border: 1px solid #e0e0e0 !important;
+    top: 0 !important; 
 }
 
-/* 日历上的事件小点 - 修复显示问题 */
+/* 日历上的事件小点 - 强力修复 */
 .flatpickr-day {
     position: relative;
-    overflow: visible !important; /* 关键修复：允许小点显示 */
+    overflow: visible !important; 
 }
 
 .event-dot {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
     border-radius: 50%;
     background-color: #f56c6c;
     position: absolute;
-    bottom: 2px;
+    bottom: 3px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10; /* 确保在最上层 */
-    border: 1px solid white; /* 增加白色描边，在选中状态下更清晰 */
+    z-index: 50; 
+    pointer-events: none; 
+    display: block !important;
+    box-shadow: 0 0 0 1px white; /* 白色描边 */
+}
+
+/* 选中状态下的红点颜色调整 */
+.flatpickr-day.selected .event-dot {
+    background-color: white;
+    box-shadow: none;
 }
 
 .badge {
@@ -212,12 +220,18 @@
     transition: all 0.2s ease;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     font-weight: 500;
     color: white;
     flex: 1;
     max-width: 120px;
-    justify-content: center;
+    box-sizing: border-box;
+}
+
+/* 移除 font-family 强制声明，依赖 fas 类名 */
+.review-btn i {
+    font-size: 16px;
 }
 
 .review-btn:hover {
