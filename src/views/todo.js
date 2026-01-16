@@ -35,7 +35,9 @@ export function initializeTodoView() {
     const calendarContainer = document.getElementById('todo-calendar-container');
     const calendarWrapper = document.getElementById('todo-calendar-wrapper');
     const calendarHeader = document.querySelector('.calendar-header');
-    const toggleIcon = document.querySelector('.toggle-icon');
+    
+    // 确保只获取当前视图内的 toggle-icon
+    const toggleIcon = calendarHeader ? calendarHeader.querySelector('.toggle-icon') : null;
 
     // 复习按钮
     const forgetBtn = document.getElementById('review-forget-btn');
@@ -45,19 +47,41 @@ export function initializeTodoView() {
     let currentSelectedNote = null;
     let currentSelectedDate = new Date().toISOString().split('T')[0]; // 默认为今天
 
+    // 辅助函数：安全的日期加法 (避免时区问题)
+    function addDays(dateStr, days) {
+        const parts = dateStr.split('-');
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1; // JS Month is 0-indexed
+        const day = parseInt(parts[2], 10);
+        
+        const date = new Date(year, month, day);
+        date.setDate(date.getDate() + days);
+        
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
     // 辅助函数：计算一篇笔记的所有未来复习日期
     function calculateFutureReviewDates(note) {
         if (!note.review) return [];
         const modeId = note.review.modeId;
         const intervals = modeId === 'custom_weekly' ? [7, 14, 21, 28] : [1, 2, 4, 7, 15, 30];
         const dates = [];
-        let baseDate = new Date(note.review.nextReviewDate);
-        dates.push(note.review.nextReviewDate);
+        
+        // 基础日期：下次复习日期
+        let currentDateStr = note.review.nextReviewDate;
+        dates.push(currentDateStr);
+        
         let currentIdx = note.review.currentIntervalIndex;
+        // 预测未来的复习日期
         for (let i = currentIdx + 1; i < intervals.length; i++) {
             const intervalDays = intervals[i];
-            baseDate.setDate(baseDate.getDate() + intervalDays);
-            dates.push(baseDate.toISOString().split('T')[0]);
+            // 注意：Ebbinghaus 间隔通常是相对于"上一次"复习的
+            // 这里我们简单累加：下一次复习日期 + 下个阶段间隔
+            currentDateStr = addDays(currentDateStr, intervalDays);
+            dates.push(currentDateStr);
         }
         return dates;
     }
@@ -73,7 +97,12 @@ export function initializeTodoView() {
                 renderTodoList(); 
             },
             onDayCreate: function(dObj, dStr, fp, dayElem) {
-                const date = dayElem.dateObj.toISOString().split('T')[0];
+                // 手动构建日期字符串，确保与 addDays 逻辑一致，避免时区干扰
+                const year = dayElem.dateObj.getFullYear();
+                const month = String(dayElem.dateObj.getMonth() + 1).padStart(2, '0');
+                const day = String(dayElem.dateObj.getDate()).padStart(2, '0');
+                const date = `${year}-${month}-${day}`;
+                
                 const hasTask = allNotes.some(note => {
                     const futureDates = calculateFutureReviewDates(note);
                     return futureDates.includes(date);

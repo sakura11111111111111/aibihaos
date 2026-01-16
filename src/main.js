@@ -4,6 +4,7 @@ import './styles/components.css';
 import './styles/modal.css';
 import './styles/views/welcome.css';
 import './styles/views/editor.css';
+import './styles/views/todo.css';
 import './styles/views/all-notes.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { loadPage } from './router.js';

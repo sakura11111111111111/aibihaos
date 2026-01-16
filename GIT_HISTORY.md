@@ -12,6 +12,8 @@
 ## 版本历史
 
 *   **feature/todo-list-v2**:
+    *   `Fix: Resolve date offset bug in calendar` - 彻底修复日历红点与任务日期不一致的问题(时区偏差)，使用本地日期计算逻辑
+    *   `Fix: Import missing todo.css and fix timezone logic` - 修复样式未加载导致的UI问题(日历折叠/图标/红点)，修复红点日期偏差
     *   `Fix: Restore navigation and modal styles` - 修复导航按钮点击无反应及弹窗样式丢失问题
     *   `Feat: Implement Todo list` - 实现待办事项功能
 
