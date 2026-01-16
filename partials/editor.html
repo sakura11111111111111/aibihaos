@@ -1,0 +1,52 @@
+<div class="main-workspace">
+    <div class="panel" id="editor-panel">
+        <div class="panel-header"><input type="text" class="title-input" placeholder="输入标题"></div>
+        <div id="editor-container"></div>
+        <div class="panel-footer">
+            <button class="action-btn tooltip" data-tooltip="点击上传本地图片"><i class="fas fa-plus"></i> 添加图片</button>
+            <div class="footer-actions">
+                <button class="action-btn-secondary-circle tooltip" data-tooltip="撤销"><i class="fas fa-redo"></i></button>
+                <button class="action-btn-primary tooltip" id="complete-edit-btn" data-tooltip="完成并保存">✓ 完成当前编辑</button>
+            </div>
+        </div>
+        <div class="footer-note">不要害怕追逐你的梦想...</div>
+    </div>
+    <div class="panel" id="preview-panel">
+        <div class="panel-header">
+            <h2>笔记预览</h2>
+            <!-- ==================== 修改/删除这些行 开始 ==================== -->
+            <!-- 删除 header-icons 和里面的排序按钮 -->
+            <!-- 您也可以保留 header-icons 以备将来添加其他按钮 -->
+            <div class="header-icons">
+                 <!-- (排序按钮已被删除) -->
+            </div>
+            <!-- ==================== 修改/删除这些行 结束 ==================== -->
+        </div>
+        <div class="preview-content-wrapper">
+            <button class="date-button tooltip" id="date-picker-btn" data-tooltip="点击修改笔记的创建日期">
+                <i class="far fa-calendar-alt"></i> 
+                <span id="date-display">修改笔记创建日期</span>
+            </button>
+            <p class="preview-placeholder">您可以在左边的模块中添加笔记的标题、内容。</p>
+            
+            <!-- 原有的 #preview-content 被重命名为 #preview-content-blocks -->
+            <!-- 它现在是所有笔记块的容器 -->
+            <div id="preview-content-blocks"></div>
+        </div>
+        <div class="panel-footer preview-footer">
+            <div class="footer-icons">
+                <!-- "归档" 按钮，添加了 id="archive-btn"<!-- "归档" 按钮 -->
+                <button id="archive-btn" class="action-btn-secondary-circle tooltip" data-tooltip="归档"><i class="fas fa-archive"></i></button>
+                <!-- ==================== 新增代码 开始 ==================== -->
+                <span id="selected-category-tag"></span>
+                <!-- ==================== 新增代码 结束 ==================== -->
+                <!-- "复习模式" 按钮, 添加了 id="review-mode-btn" -->
+                <button id="review-mode-btn" class="action-btn-secondary-circle tooltip" data-tooltip="复习模式"><i class="fas fa-book-reader"></i></button>
+                <!-- ==================== 新增代码 开始 ==================== -->
+                <span id="selected-review-mode-tag"></span>
+                <!-- ==================== 新增代码 结束 ==================== -->
+            </div>
+            <button id="save-note-btn" class="action-btn-primary tooltip" data-tooltip="最终存储笔记"><i class="fas fa-paper-plane"></i> 存储笔记</button>
+        </div>
+    </div>
+</div>
