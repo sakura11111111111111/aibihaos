@@ -205,6 +205,12 @@
     font-size: 12px;
 }
 
+.review-info i:hover {
+    color: #409eff;
+    transform: scale(1.2);
+    transition: transform 0.2s;
+}
+
 .review-btn-group {
     display: flex;
     justify-content: center;

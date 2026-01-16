@@ -43,6 +43,7 @@ export function initializeTodoView() {
     const forgetBtn = document.getElementById('review-forget-btn');
     const blurBtn = document.getElementById('review-blur-btn');
     const rememberBtn = document.getElementById('review-remember-btn');
+    const rescheduleBtn = document.getElementById('reschedule-btn');
 
     let currentSelectedNote = null;
     let currentSelectedDate = new Date().toISOString().split('T')[0]; // 默认为今天
@@ -237,7 +238,7 @@ export function initializeTodoView() {
 
         // 预览模式下禁止操作
         const today = new Date().toISOString().split('T')[0];
-        if (currentSelectedDate > today) {
+        if (currentSelectedDate > today && action !== 'reschedule') {
             await Swal.fire({ icon: 'info', title: '预览模式', text: '这是未来的任务，请等到那天再来打卡！' });
             return;
         }
@@ -246,6 +247,38 @@ export function initializeTodoView() {
         let nextIdx = currentSelectedNote.review.currentIntervalIndex;
         let nextDateOffset = 1; // 默认明天
         let message = '';
+        
+        // 调整日期逻辑
+        if (action === 'reschedule') {
+            const { value: newDate } = await Swal.fire({
+                title: '调整计划复习日期',
+                html: `
+                    <p style="font-size: 14px; color: #666; margin-bottom: 15px;">选择一个新的日期，后续复习计划将以此为基准重新计算。</p>
+                    <input type="date" id="swal-date-input" class="swal2-input" min="${today}" value="${currentSelectedNote.review.nextReviewDate}">
+                `,
+                showCancelButton: true,
+                confirmButtonText: '保存调整',
+                cancelButtonText: '取消',
+                preConfirm: () => {
+                    return document.getElementById('swal-date-input').value;
+                }
+            });
+
+            if (!newDate) return;
+
+            // 更新日期，保持当前阶段不变，但基准改变
+            currentSelectedNote.review.nextReviewDate = newDate;
+            // lastReviewDate 保持不变或者更新为今天？通常调整计划意味着推迟，lastReviewDate 意义不大，保持原样即可
+            
+            await Swal.fire({ icon: 'success', title: '调整成功', text: `下一次复习已安排在 ${newDate}`, timer: 1500, showConfirmButton: false });
+            
+            saveNotes();
+            renderTodoList();
+            
+            // 刷新右侧视图信息
+            renderReviewPreview(currentSelectedNote);
+            return;
+        }
 
         // 核心算法
         switch (action) {
@@ -298,4 +331,5 @@ export function initializeTodoView() {
     if (forgetBtn) forgetBtn.addEventListener('click', () => handleReview('forget'));
     if (blurBtn) blurBtn.addEventListener('click', () => handleReview('blur'));
     if (rememberBtn) rememberBtn.addEventListener('click', () => handleReview('remember'));
+    if (rescheduleBtn) rescheduleBtn.addEventListener('click', () => handleReview('reschedule'));
 }
