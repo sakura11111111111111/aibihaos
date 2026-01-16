@@ -1,0 +1,108 @@
+/* 按钮组件 */
+.action-btn, .action-btn-primary, .action-btn-secondary, .action-btn-secondary-circle {
+    border: 1px solid #dcdfe6;
+    background-color: #fff;
+    border-radius: 6px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.action-btn-primary {
+    background-color: var(--primary-color, #409eff);
+    color: #fff;
+    border-color: var(--primary-color, #409eff);
+}
+
+.action-btn-primary:hover {
+    background-color: #66b1ff;
+}
+
+.action-btn:hover, .action-btn-secondary:hover, .action-btn-secondary-circle:hover {
+    color: var(--primary-color, #409eff);
+    border-color: #c6e2ff;
+    background-color: #ecf5ff;
+}
+
+.action-btn-secondary-circle {
+    padding: 8px;
+    width: 36px;
+    height: 36px;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 16px;
+}
+
+.action-btn-sm {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 3px;
+    font-size: 12px;
+}
+
+.action-btn-sm:hover {
+    color: var(--primary-color, #409eff);
+}
+
+/* Tooltip 悬浮提示 */
+.tooltip {
+    position: relative;
+}
+
+.tooltip::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    background-color: #333;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+}
+
+/* 侧边栏的Tooltip在右侧显示 */
+.sidebar .tooltip::after {
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%) translateX(5px);
+    margin-left: 10px;
+}
+
+.sidebar .tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(-50%) translateX(0);
+}
+
+/* 其他区域的Tooltip在上方显示 */
+.main-workspace .tooltip::after {
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    margin-bottom: 8px;
+}
+
+.main-workspace .tooltip:hover::after {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+/* SweetAlert2 弹窗优化 */
+.swal2-popup .swal2-html-container {
+    margin: 0;
+}
+.swal2-container {
+    z-index: 2000;
+}

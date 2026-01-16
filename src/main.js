@@ -1,4 +1,9 @@
-import './style.css';
+import './styles/base.css';
+import './styles/layout.css';
+import './styles/components.css';
+import './styles/views/welcome.css';
+import './styles/views/editor.css';
+import './styles/views/all-notes.css';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { loadPage } from './router.js';
 

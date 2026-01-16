@@ -1,0 +1,206 @@
+/* 所有笔记容器 */
+.all-notes-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    background-color: #f5f5f5;
+}
+
+.notes-panel {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+#category-panel {
+    background-color: #f7f7f7;
+    border-right: 1px solid #e0e0e0;
+}
+
+#notes-list-panel {
+    border-right: 1px solid #e0e0e0;
+}
+
+.notes-panel .panel-header {
+    padding: 15px 20px;
+    border-bottom: 1px solid #e8eaed;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notes-panel .panel-header h2 {
+    font-size: 18px;
+    margin: 0;
+}
+
+.notes-panel .panel-content {
+    padding: 15px;
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* 分类面板 */
+#category-panel .panel-header button {
+    font-size: 13px;
+    padding: 5px 10px;
+}
+
+/* 分类树 */
+.category-tree {
+    list-style: none;
+    padding-left: 0;
+}
+
+.category-tree ul {
+    list-style: none;
+    padding-left: 25px;
+}
+
+.tree-item {
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin: 2px 0;
+}
+
+.tree-item .item-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tree-item .item-name {
+    flex-grow: 1;
+}
+
+.tree-item:hover {
+    background-color: #f0f5ff;
+}
+
+.tree-item.selected {
+    background-color: #e0edff;
+    font-weight: bold;
+}
+
+.tree-item .item-actions {
+    display: none;
+    gap: 5px;
+}
+
+.tree-item:hover .item-actions {
+    display: flex;
+}
+
+/* 笔记列表面板 */
+.search-input {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+}
+
+.note-item {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    cursor: pointer;
+}
+
+.note-item:hover {
+    background-color: #f5faff;
+}
+
+.note-item.selected {
+    background-color: #ecf5ff;
+}
+
+.note-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.note-item h3 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.note-item-actions {
+    display: none;
+    flex-shrink: 0;
+}
+
+.note-item:hover .note-item-actions,
+.note-item.selected .note-item-actions {
+    display: block;
+}
+
+.note-item-actions button {
+    color: #999;
+}
+
+.note-item-actions button:hover {
+    color: #f56c6c;
+}
+
+.note-item .note-excerpt {
+    font-size: 13px;
+    color: #888;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.note-item .note-date {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 8px;
+    display: block;
+}
+
+/* 预览面板 */
+#note-preview-panel .panel-header {
+    min-height: 28px;
+}
+
+#note-preview-panel .panel-content {
+    font-size: 16px;
+    line-height: 1.7;
+    padding: 20px 30px;
+}
+
+.placeholder-text {
+    text-align: center;
+    color: #aaa;
+    font-size: 14px;
+    margin-top: 50px;
+}
+
+/* 弹窗中的分类树特殊样式 */
+.category-modal-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+#category-tree-container {
+    max-height: 400px;
+    overflow-y: auto;
+    text-align: left;
+    padding: 5px;
+    border: 1px solid #eee;
+    border-radius: 6px;
+}
