@@ -23,6 +23,7 @@
     *   `Feat: Implement Todo list` - 实现待办事项功能
 
 *   **master**:
+    *   `Feat: Merge review-modes-management` - 合并复习模式管理功能，支持自定义间隔配置
     *   `Feat: Merge todo-list-v2` - 合并待办事项V2功能(日历视图、复习算法、UI优化)到主分支
     *   `Refactor: Modularize CSS architecture` - CSS 架构重构，拆分为模块化文件
     *   `Feat: Add data export/import for backup` - 新增数据导入导出功能
