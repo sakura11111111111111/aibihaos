@@ -1,14 +1,19 @@
 <div class="main-workspace todo-container">
     <!-- 左侧：待办任务列表 -->
     <div id="todo-list-panel" class="panel">
-        <div class="panel-header">
-            <h2><i class="fas fa-calendar-check" style="color: #409eff; margin-right: 10px;"></i>复习日历</h2>
+        <div class="panel-header calendar-header">
+            <h2 id="toggle-calendar-btn" class="calendar-toggle-btn">
+                <i class="fas fa-calendar-alt"></i> 复习日历 
+                <i class="fas fa-chevron-down toggle-icon"></i>
+            </h2>
         </div>
         
-        <!-- 日历组件容器 -->
-        <div id="todo-calendar-container"></div>
+        <!-- 日历组件容器 (默认隐藏) -->
+        <div id="todo-calendar-wrapper" class="calendar-wrapper collapsed">
+            <div id="todo-calendar-container"></div>
+        </div>
         
-        <div class="panel-header" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #f0f0f0;">
+        <div class="panel-header" style="margin-top: 10px; padding-top: 15px; border-top: 1px solid #f0f0f0;">
             <h3 id="todo-date-title" style="font-size: 16px; margin: 0; color: #606266;">今日任务</h3>
             <span id="todo-count" class="badge">0</span>
         </div>
@@ -32,15 +37,28 @@
                 <p>点击左侧任务，开始沉浸式复习</p>
             </div>
         </div>
+        
+        <!-- 底部操作栏 -->
         <div class="panel-footer review-actions" style="display: none;">
-            <div class="review-info">
-                <span>当前阶段: <b id="current-stage">1</b></span>
-                <i class="fas fa-arrow-right"></i>
-                <span>下一次: <b id="next-interval">2天后</b></span>
+            <div class="review-status-bar">
+                <div class="review-info">
+                    <span>当前阶段: <b id="current-stage">1</b></span>
+                    <i class="fas fa-arrow-right"></i>
+                    <span>下一次: <b id="next-interval">2天后</b></span>
+                </div>
             </div>
-            <button id="complete-review-btn" class="action-btn-primary">
-                <i class="fas fa-check"></i> 完成今日复习
-            </button>
+            
+            <div class="review-btn-group">
+                <button id="review-forget-btn" class="review-btn btn-forget" data-tooltip="重置进度，明天复习">
+                    <i class="fas fa-times"></i> 忘记
+                </button>
+                <button id="review-blur-btn" class="review-btn btn-blur" data-tooltip="保持进度，明天复习">
+                    <i class="fas fa-question"></i> 模糊
+                </button>
+                <button id="review-remember-btn" class="review-btn btn-remember" data-tooltip="进入下一阶段">
+                    <i class="fas fa-check"></i> 记住
+                </button>
+            </div>
         </div>
     </div>
 </div>
