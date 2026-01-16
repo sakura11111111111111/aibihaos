@@ -19,6 +19,7 @@
     *   `Feat: Implement Todo list` - 实现待办事项功能
 
 *   **master**:
+    *   `Feat: Merge todo-list-v2` - 合并待办事项V2功能(日历视图、复习算法、UI优化)到主分支
     *   `Refactor: Modularize CSS architecture` - CSS 架构重构，拆分为模块化文件
     *   `Feat: Add data export/import for backup` - 新增数据导入导出功能
     *   `Refactor: Migrate to Vite and ES Modules` - 完成工程化重构
