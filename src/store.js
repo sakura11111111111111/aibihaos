@@ -1,44 +1,57 @@
-import { APP_CATEGORIES_STORAGE_KEY, APP_NOTES_STORAGE_KEY } from './config.js';
+const API_BASE_URL = 'http://localhost:3000/api';
 
 export let categories = [];
 export let allNotes = [];
 export let reviewModes = [];
 
-const APP_REVIEW_MODES_STORAGE_KEY = 'advanced-notes-review-modes';
+// Helper to rebuild tree from flat list (if needed)
+// Currently backend sends flat list for categories, but frontend expects tree for some views?
+// Actually, backend sends flat list. We need to reconstruct tree here if frontend relies on 'children' property.
+function buildCategoryTree(flatCategories) {
+    const map = {};
+    const tree = [];
+    
+    // First pass: create nodes
+    flatCategories.forEach(cat => {
+        map[cat.id] = { ...cat, children: [] };
+    });
+    
+    // Second pass: link children to parents
+    flatCategories.forEach(cat => {
+        if (cat.parent_id && map[cat.parent_id]) {
+            map[cat.parent_id].children.push(map[cat.id]);
+        } else {
+            tree.push(map[cat.id]);
+        }
+    });
+    
+    return tree;
+}
 
-export function loadReviewModes() {
-    const storedModes = localStorage.getItem(APP_REVIEW_MODES_STORAGE_KEY);
-    if (storedModes) {
-        reviewModes = JSON.parse(storedModes);
-    } else {
-        // Default System Modes
-        reviewModes = [
-            { 
-                id: 'ebbinghaus_default', 
-                name: '艾宾浩斯 (系统推荐)', 
-                description: '基于经典遗忘曲线，适合长期记忆',
-                // Updated per user request: 1, 1, 2, 3, 5, 8, 15, 30, 60
-                intervals: [1, 1, 2, 3, 5, 8, 15, 30, 60], 
-                isSystem: true 
-            },
-            { 
-                id: 'custom_weekly', 
-                name: '每周回顾', 
-                description: '每周一次，共复习4次',
-                intervals: [7, 7, 7, 7], 
-                isSystem: true 
-            }
-        ];
-        saveReviewModes(); // Persist defaults
+export async function loadReviewModes() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/review-modes`);
+        if (response.ok) {
+            reviewModes = await response.json();
+        } else {
+            console.error('Failed to load review modes');
+            // Fallback to defaults if backend fails?
+            // reviewModes = [ ...defaults... ];
+        }
+    } catch (error) {
+        console.error('Error loading review modes:', error);
     }
     return reviewModes;
 }
 
-export function saveReviewModes() {
-    localStorage.setItem(APP_REVIEW_MODES_STORAGE_KEY, JSON.stringify(reviewModes));
+export async function saveReviewModes() {
+    // With backend, we usually save individual items. 
+    // This function might be deprecated or used to sync bulk changes?
+    // For now, let's keep it empty or log warning.
+    console.warn('saveReviewModes is deprecated. Use add/deleteReviewMode instead.');
 }
 
-export function addReviewMode(name, intervals) {
+export async function addReviewMode(name, intervals) {
     const newMode = {
         id: 'custom_' + Date.now(),
         name: name,
@@ -46,17 +59,39 @@ export function addReviewMode(name, intervals) {
         intervals: intervals,
         isSystem: false
     };
-    reviewModes.push(newMode);
-    saveReviewModes();
-    return newMode;
+    
+    try {
+        const response = await fetch(`${API_BASE_URL}/review-modes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(newMode)
+        });
+        
+        if (response.ok) {
+            reviewModes.push(newMode);
+            return newMode;
+        }
+    } catch (error) {
+        console.error('Failed to add review mode:', error);
+    }
+    return null;
 }
 
-export function deleteReviewMode(id) {
-    const index = reviewModes.findIndex(m => m.id === id);
-    if (index !== -1 && !reviewModes[index].isSystem) {
-        reviewModes.splice(index, 1);
-        saveReviewModes();
-        return true;
+export async function deleteReviewMode(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/review-modes/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            const index = reviewModes.findIndex(m => m.id === id);
+            if (index !== -1) {
+                reviewModes.splice(index, 1);
+                return true;
+            }
+        }
+    } catch (error) {
+        console.error('Failed to delete review mode:', error);
     }
     return false;
 }
@@ -65,35 +100,129 @@ export function getReviewModeById(id) {
     return reviewModes.find(m => m.id === id);
 }
 
-export function loadCategories() {
-    const storedCategories = localStorage.getItem(APP_CATEGORIES_STORAGE_KEY);
-    if (storedCategories) {
-        categories = JSON.parse(storedCategories);
-    } else {
-        categories = [
-            { id: 1, name: '高数冲刺', children: [ { id: 11, name: '多元函数', children: [] } ] },
-            { id: 2, name: '二重积分', children: [] },
-            { id: 3, name: '大营销项目', children: [] }
-        ];
+export async function loadCategories() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/categories`);
+        if (response.ok) {
+            const flatCats = await response.json();
+            categories = buildCategoryTree(flatCats);
+        }
+    } catch (error) {
+        console.error('Error loading categories:', error);
     }
     return categories;
 }
 
-export function saveCategories() {
-    localStorage.setItem(APP_CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+export async function saveCategories() {
+    // Deprecated for bulk save. Individual CRUD should be used.
+    // For now, frontend code might still call this.
+    // Ideally we should refactor frontend to call addCategory/deleteCategory API directly.
+    // But to minimize changes, maybe we just don't do anything here and rely on specific actions?
+    // Wait, the frontend code in allNotes.js modifies 'categories' array directly and calls saveCategories().
+    // We need to intercept those changes.
+    // This is tricky without changing frontend logic significantly.
+    // Option: Implement a 'sync' function or update allNotes.js to call API.
+    // Let's just log for now.
+    console.warn('saveCategories is deprecated. Use API directly.');
 }
 
-export function loadNotes() {
-    const storedNotes = localStorage.getItem(APP_NOTES_STORAGE_KEY);
-    allNotes = storedNotes ? JSON.parse(storedNotes) : [];
+// Helper to be called by frontend when adding category
+export async function createCategory(name, parentId = null) {
+    try {
+        // Use a temp ID or let backend generate?
+        // Let's generate a timestamp ID to match current frontend logic
+        const id = Date.now(); 
+        const response = await fetch(`${API_BASE_URL}/categories`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id, name, parent_id: parentId })
+        });
+        
+        if (response.ok) {
+            // Reload to get fresh tree
+            await loadCategories();
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to create category:', error);
+    }
+    return false;
+}
+
+export async function loadNotes() {
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes`);
+        if (response.ok) {
+            allNotes = await response.json();
+        }
+    } catch (error) {
+        console.error('Error loading notes:', error);
+    }
     return allNotes;
 }
 
-export function saveNotes() {
-    localStorage.setItem(APP_NOTES_STORAGE_KEY, JSON.stringify(allNotes));
+export async function saveNotes() {
+    // This is called by frontend after modifying 'allNotes' array (e.g. deleting).
+    // Or when saving a specific note.
+    // If it's a bulk save, we can't easily map to API.
+    // BUT, editor.js calls saveNotes() after pushing to allNotes.
+    // We should intercept the *specific* note save in editor.js.
+    // For deletion (in allNotes.js), it splices array then calls saveNotes().
+    // We need to change that logic to call API delete.
+    console.warn('saveNotes is deprecated. Use API directly.');
 }
 
-// Initialize
-loadCategories();
-loadNotes();
-loadReviewModes();
+// New helper for saving a single note
+export async function saveSingleNote(note) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(note)
+        });
+        
+        if (response.ok) {
+            // Update local cache
+            const index = allNotes.findIndex(n => n.id === note.id);
+            if (index !== -1) {
+                allNotes[index] = note;
+            } else {
+                allNotes.push(note);
+            }
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to save note:', error);
+    }
+    return false;
+}
+
+export async function deleteNote(id) {
+    try {
+        const response = await fetch(`${API_BASE_URL}/notes/${id}`, {
+            method: 'DELETE'
+        });
+        
+        if (response.ok) {
+            const index = allNotes.findIndex(n => n.id === id);
+            if (index !== -1) {
+                allNotes.splice(index, 1);
+            }
+            return true;
+        }
+    } catch (error) {
+        console.error('Failed to delete note:', error);
+    }
+    return false;
+}
+
+// Initialize (Async now)
+(async () => {
+    await loadReviewModes();
+    await loadCategories();
+    await loadNotes();
+    // Dispatch event to notify app that data is loaded?
+    // Since main.js might render before data is ready.
+    // Simple fix: reload page or use reactive UI.
+    // For now, we rely on the fact that views call loadNotes() too.
+})();

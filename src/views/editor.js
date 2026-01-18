@@ -8,7 +8,7 @@ import 'quill/dist/quill.snow.css';
 import 'flatpickr/dist/flatpickr.min.css';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
-import { categories, allNotes, saveNotes, loadNotes, reviewModes, addReviewMode, deleteReviewMode } from '../store.js';
+import { categories, allNotes, saveSingleNote, loadNotes, reviewModes, addReviewMode, deleteReviewMode } from '../store.js';
 import { findCategoryById } from '../utils.js';
 import { buildCategoryTreeHTML } from '../components.js';
 
@@ -17,7 +17,7 @@ if (Mandarin) {
     flatpickr.localize(Mandarin);
 }
 
-export function initializeEditor() {
+export async function initializeEditor() {
     // --- 1. 模式判断与状态初始化 ---
     let isEditMode = false;
     let editingNoteId = null;
@@ -63,7 +63,7 @@ export function initializeEditor() {
     let selectedReviewModeId = null;
 
     // Refresh notes from store
-    loadNotes();
+    await loadNotes();
 
     // ★★★ 核心修正：将数据回填逻辑放在所有变量定义之后 ★★★ 
     if (isEditMode) { 
@@ -356,7 +356,7 @@ export function initializeEditor() {
     }
 
     if (saveNoteBtn) { 
-        saveNoteBtn.addEventListener('click', () => { 
+        saveNoteBtn.addEventListener('click', async () => { 
             const title = titleInput.value.trim(); 
             
             // 校验逻辑 
@@ -382,27 +382,24 @@ export function initializeEditor() {
             } 
             
             // 核心：区分 新增 和 更新 逻辑 
-            if (isEditMode) { 
-                // 更新模式：找到并替换数组中的旧笔记 
-                const noteIndex = allNotes.findIndex(note => note.id === editingNoteId); 
-                if (noteIndex !== -1) { 
-                    allNotes[noteIndex] = finalNoteObject; 
-                } else { 
-                    // 如果因为某些异常找不到，则追加，防止数据丢失 
-                    allNotes.push(finalNoteObject); 
-                } 
-            } else { 
-                // 创建模式：直接推入新笔记 
-                allNotes.push(finalNoteObject); 
-            } 
+            // 注意：这里我们不再直接操作数组，而是调用 store 的 saveSingleNote 方法
+            // 该方法会负责调用 API
             
-            saveNotes(); // Call store save
-            
-            Swal.fire({ icon: 'success', title: isEditMode ? '笔记已更新！' : '笔记已存储！', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }); 
-            
-            // 保存后，跳转回"所有笔记"页面，以便看到更新 
-            const allNotesBtn = document.getElementById('all-notes-btn');
-            if (allNotesBtn) allNotesBtn.click(); 
+            try {
+                const success = await saveSingleNote(finalNoteObject);
+                if (success) {
+                    Swal.fire({ icon: 'success', title: isEditMode ? '笔记已更新！' : '笔记已存储！', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 }); 
+                    
+                    // 保存后，跳转回"所有笔记"页面，以便看到更新 
+                    const allNotesBtn = document.getElementById('all-notes-btn');
+                    if (allNotesBtn) allNotesBtn.click(); 
+                } else {
+                    Swal.fire('保存失败', '无法连接到服务器，请重试。', 'error');
+                }
+            } catch (err) {
+                console.error(err);
+                Swal.fire('保存失败', '发生未知错误。', 'error');
+            }
         }); 
     }
 }
