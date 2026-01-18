@@ -34,6 +34,18 @@ npm run dev
 ```
 如果看到 `Server is running on http://localhost:3000` 和 `Database connection successful`，说明后端已连接成功！
 
-## 4. 前端对接 (下一步)
+## 4. 前端对接 (已完成)
 目前的 API 服务运行在 3000 端口。
-下一步我们需要修改前端代码 (`src/store.js`)，将 `localStorage` 的读写操作替换为 `fetch('http://localhost:3000/api/...')`。
+前端代码 (`src/store.js`) 已经重构，不再使用 `localStorage`，而是通过 `fetch` 调用后端 API。
+
+### 已实现的 API 接口：
+*   `GET /api/notes` - 获取所有笔记
+*   `POST /api/notes` - 创建或更新笔记
+*   `DELETE /api/notes/:id` - 删除笔记
+*   `GET/POST/DELETE /api/categories` - 分类管理
+*   `GET/POST/DELETE /api/review-modes` - 复习模式管理
+*   `POST /api/clear-all-data` - 一键清空数据库（用于重置）
+
+### 常见问题
+**中文乱码问题**：
+如果发现复习模式名称显示为乱码，是因为 MySQL 连接默认字符集不匹配。我们已在 `config/db.js` 中强制设置了 `charset: 'utf8mb4'`。如果仍有乱码，请尝试在“设置”页面点击“清空所有数据”来重置默认数据。

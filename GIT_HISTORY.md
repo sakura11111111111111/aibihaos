@@ -29,6 +29,8 @@
     *   `Feat: Add data export/import for backup` - 新增数据导入导出功能
     *   `Refactor: Migrate to Vite and ES Modules` - 完成工程化重构
     *   `Feat: Initialize backend environment` - 初始化后端服务，配置 MySQL 连接池，解决环境变量冲突问题
+    *   `Feat: Connect frontend to backend` - 完成前后端对接，实现笔记、分类、复习模式的 CRUD API，移除 localStorage
+    *   `Fix: Database encoding issues` - 强制数据库连接使用 utf8mb4，修复中文乱码问题
     *   `Initial commit` - 项目初始化
 
 *   **yuanshi-beifen**:

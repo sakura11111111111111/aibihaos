@@ -13,7 +13,8 @@ const pool = mysql.createPool({
     database: process.env.DB_NAME || 'advanced_notes_db',
     waitForConnections: true,
     connectionLimit: 10,
-    queueLimit: 0
+    queueLimit: 0,
+    charset: 'utf8mb4' // Force UTF-8mb4
 });
 
 module.exports = pool.promise();
