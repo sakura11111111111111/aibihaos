@@ -28,6 +28,7 @@
     *   `Refactor: Modularize CSS architecture` - CSS 架构重构，拆分为模块化文件
     *   `Feat: Add data export/import for backup` - 新增数据导入导出功能
     *   `Refactor: Migrate to Vite and ES Modules` - 完成工程化重构
+    *   `Feat: Initialize backend environment` - 初始化后端服务，配置 MySQL 连接池，解决环境变量冲突问题
     *   `Initial commit` - 项目初始化
 
 *   **yuanshi-beifen**:

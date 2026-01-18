@@ -2,8 +2,8 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 
-// Load env vars
-dotenv.config();
+// Load env vars with override to ensure .env takes precedence over system vars
+dotenv.config({ override: true });
 
 const app = express();
 const PORT = process.env.PORT || 3000;
