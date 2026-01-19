@@ -49,3 +49,12 @@ npm run dev
 ### 常见问题
 **中文乱码问题**：
 如果发现复习模式名称显示为乱码，是因为 MySQL 连接默认字符集不匹配。我们已在 `config/db.js` 中强制设置了 `charset: 'utf8mb4'`。如果仍有乱码，请尝试在“设置”页面点击“清空所有数据”来重置默认数据。
+
+## 5. 维护与扩展建议
+### 数据备份
+*   虽然有数据库，但建议定期使用 `mysqldump` 备份数据，或者使用前端的“导出数据”功能（目前导出的是前端状态快照，后续可优化为后端导出）。
+
+### 代码解耦方向
+*   **Controller 层 (已完成)**：路由逻辑已拆分到 `server/controllers/` 和 `server/routes/`，实现了 MVC 架构的 Controller 层和 Route 层分离。
+*   **Model 层**：目前仍使用原生 SQL，后续可以引入 Sequelize 或 TypeORM 等 ORM 库。
+*   **前端 API 层**：建议将 `store.js` 中的 `fetch` 调用封装到独立的 `api/` 模块中，统一处理错误和拦截器。

@@ -30,7 +30,9 @@
     *   `Refactor: Migrate to Vite and ES Modules` - 完成工程化重构
     *   `Feat: Initialize backend environment` - 初始化后端服务，配置 MySQL 连接池，解决环境变量冲突问题
     *   `Feat: Connect frontend to backend` - 完成前后端对接，实现笔记、分类、复习模式的 CRUD API，移除 localStorage
+    *   `Refactor: Decouple backend structure` - 后端重构为 MVC 架构，拆分路由(routes)和控制器(controllers)
     *   `Fix: Database encoding issues` - 强制数据库连接使用 utf8mb4，修复中文乱码问题
+    *   `Fix: Reset default data` - 更新清空数据接口，重置默认复习模式时使用正确编码
     *   `Initial commit` - 项目初始化
 
 *   **yuanshi-beifen**:
