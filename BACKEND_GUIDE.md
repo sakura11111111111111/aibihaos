@@ -1,60 +1,106 @@
-# 后端环境搭建指南
+# 🏗️ 后端架构与开发指南 (Backend Guide)
 
-您已成功初始化后端项目结构！请按照以下步骤启动服务。
+> **当前版本**: v1.1.0 (MVC 架构 + 前后端解耦)
+> **更新时间**: 2026-01-19
 
-## 1. 准备数据库
-确保您的电脑上已安装 MySQL，并且服务正在运行。
+## 📚 1. 项目结构 (Architecture)
+本项目采用经典的 **MVC (Model-View-Controller)** 架构（View 层由前端 Vue 负责）。
 
-### 导入数据表结构
-打开终端 (PowerShell 或 CMD)，运行以下命令将表结构导入数据库：
+```text
+/
+├── src/                # 前端源码 (View)
+│   ├── api/            # [新] API 接口层 (与后端通信的桥梁)
+│   ├── views/          # 页面组件
+│   └── store.js        # 状态管理 (调用 api 层)
+│
+├── server/             # 后端源码
+│   ├── config/
+│   │   └── db.js       # MySQL 数据库连接池
+│   │
+│   ├── controllers/    # [新] 控制器层 (处理业务逻辑)
+│   │   ├── noteController.js
+│   │   ├── categoryController.js
+│   │   └── reviewModeController.js
+│   │
+│   ├── routes/         # [新] 路由层 (定义 API URL)
+│   │   ├── notes.js
+│   │   ├── categories.js
+│   │   └── reviewModes.js
+│   │
+│   └── server.js       # 入口文件 (仅负责启动服务和挂载路由)
+│
+└── database/
+    └── schema.sql      # 数据库初始化脚本
+```
+
+---
+
+## 🚀 2. 快速启动 (Quick Start)
+
+### 2.1 环境准备
+1.  **MySQL**: 确保本地安装并运行 MySQL 5.7+。
+2.  **环境变量**: 检查 `server/.env` 文件。
+    ```ini
+    DB_USER=root
+    DB_PASSWORD=your_password  <-- 如果有密码，请务必修改这里
+    DB_NAME=advanced_notes_db
+    ```
+
+### 2.2 数据库初始化
+如果还没建库，请运行：
 ```bash
-# 如果您的 MySQL root 用户没有密码：
-mysql -u root < database/schema.sql
-
-# 如果有密码，请运行（回车后输入密码）：
 mysql -u root -p < database/schema.sql
 ```
 
-## 2. 配置环境变量
-检查 `server/.env` 文件。默认配置如下：
-```ini
-DB_USER=root
-DB_PASSWORD=
-DB_NAME=advanced_notes_db
-```
-如果您修改了 MySQL 密码，请务必更新 `DB_PASSWORD` 字段。
-
-> **注意**：如果您的电脑存在全局的 `DB_PASSWORD` 环境变量导致连接失败（Access Denied），请保留代码中的 `dotenv.config({ override: true })` 配置，这将强制项目优先使用 `.env` 文件中的密码。
-
-## 3. 启动后端服务
-打开一个新的终端窗口：
+### 2.3 启动服务
 ```bash
 cd server
 npm run dev
 ```
-如果看到 `Server is running on http://localhost:3000` 和 `Database connection successful`，说明后端已连接成功！
+看到 `Server is running on http://localhost:3000` 即表示成功。
 
-## 4. 前端对接 (已完成)
-目前的 API 服务运行在 3000 端口。
-前端代码 (`src/store.js`) 已经重构，不再使用 `localStorage`，而是通过 `fetch` 调用后端 API。
+---
 
-### 已实现的 API 接口：
-*   `GET /api/notes` - 获取所有笔记
+## 🔗 3. API 接口文档 (API Reference)
+
+### 📝 笔记 (Notes)
+*   `GET /api/notes` - 获取所有笔记（包含复习状态）
 *   `POST /api/notes` - 创建或更新笔记
 *   `DELETE /api/notes/:id` - 删除笔记
-*   `GET/POST/DELETE /api/categories` - 分类管理
-*   `GET/POST/DELETE /api/review-modes` - 复习模式管理
-*   `POST /api/clear-all-data` - 一键清空数据库（用于重置）
 
-### 常见问题
-**中文乱码问题**：
-如果发现复习模式名称显示为乱码，是因为 MySQL 连接默认字符集不匹配。我们已在 `config/db.js` 中强制设置了 `charset: 'utf8mb4'`。如果仍有乱码，请尝试在“设置”页面点击“清空所有数据”来重置默认数据。
+### 📂 分类 (Categories)
+*   `GET /api/categories` - 获取分类列表
+*   `POST /api/categories` - 创建分类
+*   `PUT /api/categories/:id` - 更新分类名称
+*   `DELETE /api/categories/:id` - 删除分类
 
-## 5. 维护与扩展建议
-### 数据备份
-*   虽然有数据库，但建议定期使用 `mysqldump` 备份数据，或者使用前端的“导出数据”功能（目前导出的是前端状态快照，后续可优化为后端导出）。
+### 🧠 复习模式 (Review Modes)
+*   `GET /api/review-modes` - 获取所有复习模式
+*   `POST /api/review-modes` - 创建自定义复习模式
+*   `DELETE /api/review-modes/:id` - 删除自定义模式
 
-### 代码解耦方向
-*   **Controller 层 (已完成)**：路由逻辑已拆分到 `server/controllers/` 和 `server/routes/`，实现了 MVC 架构的 Controller 层和 Route 层分离。
-*   **Model 层**：目前仍使用原生 SQL，后续可以引入 Sequelize 或 TypeORM 等 ORM 库。
-*   **前端 API 层 (已完成)**：已将 `store.js` 中的 `fetch` 调用封装到独立的 `src/api/` 模块中，统一管理网络请求。
+### ⚙️ 系统 (System)
+*   `GET /api/test-db` - 测试数据库连接
+*   `POST /api/clear-all-data` - **危险**: 清空所有用户数据并重置默认设置
+
+---
+
+## 🛠️ 4. 开发与维护 (Development)
+
+### 新增一个 API 的步骤：
+1.  **Controller**: 在 `server/controllers/` 下新建或修改控制器，编写业务逻辑（SQL 查询）。
+2.  **Route**: 在 `server/routes/` 下定义 URL 路径，并指向对应的控制器方法。
+3.  **Frontend API**: 在 `src/api/` 下封装对应的 `fetch` 请求。
+4.  **Store/View**: 在前端页面调用封装好的 API。
+
+### 常见问题排查：
+*   **中文乱码**: 检查 `config/db.js` 中是否有 `charset: 'utf8mb4'`。
+*   **跨域错误 (CORS)**: `server.js` 中已默认启用 `cors()` 中间件，通常无需配置。如遇问题请检查浏览器控制台。
+
+---
+
+## 🔮 5. 未来规划 (Roadmap)
+*   [ ] **ORM 引入**: 考虑使用 Sequelize 替代原生 SQL，提高开发效率。
+*   [ ] **用户系统**: 引入 JWT 鉴权，支持多用户登录。
+*   [ ] **数据导出**: 实现后端直接生成 SQL 备份文件的功能。
+
