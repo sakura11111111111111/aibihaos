@@ -1,0 +1,45 @@
+name: Deploy to Cloud Server
+
+on:
+  push:
+    branches: [ "master", "dev" ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Deploy to Server via SSH
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. 进入项目目录（请确保服务器上已经手动克隆过一次项目）
+            # 假设项目路径是 /root/advanced-notes-app
+            mkdir -p /root/advanced-notes-app
+            cd /root/advanced-notes-app
+            
+            # 2. 如果是第一次，这里需要 git clone；如果是更新，则 git pull
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/${{ github.repository }}.git .
+            else
+              git pull origin master
+            fi
+
+            # 3. 创建环境变量文件 (使用 GitHub Secrets 注入)
+            echo "PORT=3000" > server/.env
+            echo "DB_HOST=db" >> server/.env
+            echo "DB_USER=root" >> server/.env
+            echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> server/.env
+            echo "DB_NAME=advanced_notes_db" >> server/.env
+
+            # 4. 使用 Docker Compose 一键启动/更新
+            # 这会自动构建镜像、启动数据库、迁移数据
+            docker-compose up -d --build --remove-orphans
+            
+            # 5. 清理不用的旧镜像
+            docker image prune -f
