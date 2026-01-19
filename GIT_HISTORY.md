@@ -1,54 +1,72 @@
-# Git 分支说明文档
+# Git 分支与版本历史说明文档
 
-## 分支清单
+## 📌 当前状态 (Current State)
+*   **当前所在分支**: `master` (生产环境主分支)
+*   **最后一次提交**: `Merge feature/backend-init` - 后端功能全量合并
+*   **代码稳定性**: 🟢 **稳定** (包含完整的前后端全栈功能)
 
-| 分支名称 | 说明 | 状态 |
-| :--- | :--- | :--- |
-| **master** | 主分支，包含最新的稳定代码 (CSS 模块化重构完成) | 🟢 稳定 |
-| **feature/todo-list-v2** | 待办事项功能开发 (V2版本，独立样式) | 🚀 开发中 (当前分支) |
-| **yuanshi-beifen** | 原始备份分支，指向重构前的 Vanilla JS 版本 | 🔒 存档 (只读) |
-| **gongneng-shujubeifen** | 旧功能分支 | ⚠️ 已废弃 |
+## 🌿 分支清单 (Branch List)
 
-## 版本历史
+| 分支名称 | 用途说明 | 状态 | 关键特性 |
+| :--- | :--- | :--- | :--- |
+| **master** | **生产环境主分支** | � **活跃 (当前)** | MySQL对接、MVC架构、API解耦、完整待办事项 |
+| **feature/backend-init** | 后端对接与架构重构 | ✅ 已合并 | (已合入 master，可归档) |
+| **feature/todo-list-v2** | 待办事项功能开发 | ✅ 已合并 | (已合入 master，可归档) |
+| **yuanshi-beifen** | 原始代码备份 | 🔒 归档 | 最早期的 Vanilla JS 版本 |
+| **gongneng-shujubeifen** | 旧功能备份 | ⚠️ 已废弃 | - |
 
-*   **feature/review-modes-management**:
-    *   `Feat: Implement Manage Review Modes` - 实现复习模式管理功能（查看、新增自定义模式、删除）
-    *   `Refactor: Update Ebbinghaus schedule` - 调整系统默认艾宾浩斯复习间隔为 [1, 1, 2, 3, 5, 8, 15, 30, 60]
+---
 
-*   **feature/todo-list-v2**:
-    *   `Feat: Add reschedule review date functionality` - 新增自定义调整复习日期功能，允许用户手动延后或修改计划
-    *   `Fix: Resolve date offset bug in calendar` - 彻底修复日历红点与任务日期不一致的问题(时区偏差)，使用本地日期计算逻辑
-    *   `Fix: Import missing todo.css and fix timezone logic` - 修复样式未加载导致的UI问题(日历折叠/图标/红点)，修复红点日期偏差
-    *   `Fix: Restore navigation and modal styles` - 修复导航按钮点击无反应及弹窗样式丢失问题
-    *   `Feat: Implement Todo list` - 实现待办事项功能
+## 📅 版本历史 (Changelog)
 
-*   **master**:
-    *   `Feat: Merge review-modes-management` - 合并复习模式管理功能，支持自定义间隔配置
-    *   `Feat: Merge todo-list-v2` - 合并待办事项V2功能(日历视图、复习算法、UI优化)到主分支
-    *   `Refactor: Modularize CSS architecture` - CSS 架构重构，拆分为模块化文件
-    *   `Feat: Add data export/import for backup` - 新增数据导入导出功能
-    *   `Refactor: Migrate to Vite and ES Modules` - 完成工程化重构
-    *   `Initial commit` - 项目初始化
+### 🚀 v1.1.0 - Backend Integration & Refactor (当前版本)
+> **里程碑**: 完成前后端分离架构，引入 MySQL 持久化存储。
 
-*   **yuanshi-beifen**:
-    *   `Initial commit` - 原始代码备份
+*   **2026-01-19**: `Merge feature/backend-init`
+    *   🎉 **全栈发布**: 将后端服务与前端重构代码合并至主分支。
 
-## 常用操作
+*   **2026-01-19**: `Refactor: Decouple Frontend API Layer`
+    *   ✨ **前端架构升级**: 拆分 `store.js` 为 `src/api/` 模块。
 
-### 切换分支
-```bash
-# 切换到开发分支
-git checkout feature/todo-list-v2
+*   **2026-01-19**: `Refactor: Decouple backend into Controllers and Routes`
+    *   ✨ **后端架构升级**: 实现 MVC 模式，代码瘦身。
 
-# 切换到主分支
-git checkout master
-```
+*   **2026-01-19**: `Fix: Resolve Chinese encoding issues`
+    *   🐛 **修复乱码**: 强制 `utf8mb4` 字符集。
 
-### 运行项目
-```bash
-# 安装依赖
-npm install
+---
 
-# 启动开发服务器
-npm run dev
-```
+### � v1.0.0 - Frontend Features (旧版本)
+
+#### feature/review-modes-management
+*   `Feat: Implement Manage Review Modes` - 复习模式管理功能。
+
+#### feature/todo-list-v2
+*   `Feat: Implement Todo list` - 待办事项核心功能。
+
+---
+
+## 🤝 交接注意事项 (Handover Notes)
+
+### 1. 环境依赖
+*   **Node.js**: v14+
+*   **MySQL**: v5.7+ (必须运行在默认 3306 端口)
+*   **Database**: `advanced_notes_db` (字符集 `utf8mb4`)
+
+### 2. 启动流程
+这是一个 **Monorepo** 风格的项目，需要同时启动前后端：
+
+1.  **启动后端** (Port 3000):
+    ```bash
+    cd server
+    npm run dev
+    ```
+    *检查日志: `Server is running on http://localhost:3000`*
+
+2.  **启动前端** (Port 5173):
+    ```bash
+    # 在项目根目录
+    npm run dev
+    ```
+    *检查日志: `Local: http://localhost:5173/`*
+

@@ -1,44 +1,43 @@
-import { APP_CATEGORIES_STORAGE_KEY, APP_NOTES_STORAGE_KEY } from './config.js';
+import * as reviewModeApi from './api/reviewModes.js';
+import * as categoryApi from './api/categories.js';
+import * as noteApi from './api/notes.js';
 
 export let categories = [];
 export let allNotes = [];
 export let reviewModes = [];
 
-const APP_REVIEW_MODES_STORAGE_KEY = 'advanced-notes-review-modes';
+// Helper to rebuild tree from flat list (if needed)
+function buildCategoryTree(flatCategories) {
+    const map = {};
+    const tree = [];
+    
+    // First pass: create nodes
+    flatCategories.forEach(cat => {
+        map[cat.id] = { ...cat, children: [] };
+    });
+    
+    // Second pass: link children to parents
+    flatCategories.forEach(cat => {
+        if (cat.parent_id && map[cat.parent_id]) {
+            map[cat.parent_id].children.push(map[cat.id]);
+        } else {
+            tree.push(map[cat.id]);
+        }
+    });
+    
+    return tree;
+}
 
-export function loadReviewModes() {
-    const storedModes = localStorage.getItem(APP_REVIEW_MODES_STORAGE_KEY);
-    if (storedModes) {
-        reviewModes = JSON.parse(storedModes);
-    } else {
-        // Default System Modes
-        reviewModes = [
-            { 
-                id: 'ebbinghaus_default', 
-                name: '艾宾浩斯 (系统推荐)', 
-                description: '基于经典遗忘曲线，适合长期记忆',
-                // Updated per user request: 1, 1, 2, 3, 5, 8, 15, 30, 60
-                intervals: [1, 1, 2, 3, 5, 8, 15, 30, 60], 
-                isSystem: true 
-            },
-            { 
-                id: 'custom_weekly', 
-                name: '每周回顾', 
-                description: '每周一次，共复习4次',
-                intervals: [7, 7, 7, 7], 
-                isSystem: true 
-            }
-        ];
-        saveReviewModes(); // Persist defaults
-    }
+export async function loadReviewModes() {
+    reviewModes = await reviewModeApi.getAllReviewModes();
     return reviewModes;
 }
 
-export function saveReviewModes() {
-    localStorage.setItem(APP_REVIEW_MODES_STORAGE_KEY, JSON.stringify(reviewModes));
+export async function saveReviewModes() {
+    console.warn('saveReviewModes is deprecated. Use add/deleteReviewMode instead.');
 }
 
-export function addReviewMode(name, intervals) {
+export async function addReviewMode(name, intervals) {
     const newMode = {
         id: 'custom_' + Date.now(),
         name: name,
@@ -46,17 +45,25 @@ export function addReviewMode(name, intervals) {
         intervals: intervals,
         isSystem: false
     };
-    reviewModes.push(newMode);
-    saveReviewModes();
-    return newMode;
+    
+    const success = await reviewModeApi.createReviewMode(newMode);
+    
+    if (success) {
+        reviewModes.push(newMode);
+        return newMode;
+    }
+    return null;
 }
 
-export function deleteReviewMode(id) {
-    const index = reviewModes.findIndex(m => m.id === id);
-    if (index !== -1 && !reviewModes[index].isSystem) {
-        reviewModes.splice(index, 1);
-        saveReviewModes();
-        return true;
+export async function deleteReviewMode(id) {
+    const success = await reviewModeApi.deleteReviewMode(id);
+    
+    if (success) {
+        const index = reviewModes.findIndex(m => m.id === id);
+        if (index !== -1) {
+            reviewModes.splice(index, 1);
+            return true;
+        }
     }
     return false;
 }
@@ -65,35 +72,72 @@ export function getReviewModeById(id) {
     return reviewModes.find(m => m.id === id);
 }
 
-export function loadCategories() {
-    const storedCategories = localStorage.getItem(APP_CATEGORIES_STORAGE_KEY);
-    if (storedCategories) {
-        categories = JSON.parse(storedCategories);
-    } else {
-        categories = [
-            { id: 1, name: '高数冲刺', children: [ { id: 11, name: '多元函数', children: [] } ] },
-            { id: 2, name: '二重积分', children: [] },
-            { id: 3, name: '大营销项目', children: [] }
-        ];
-    }
+export async function loadCategories() {
+    const flatCats = await categoryApi.getAllCategories();
+    categories = buildCategoryTree(flatCats);
     return categories;
 }
 
-export function saveCategories() {
-    localStorage.setItem(APP_CATEGORIES_STORAGE_KEY, JSON.stringify(categories));
+export async function saveCategories() {
+    console.warn('saveCategories is deprecated. Use API directly.');
 }
 
-export function loadNotes() {
-    const storedNotes = localStorage.getItem(APP_NOTES_STORAGE_KEY);
-    allNotes = storedNotes ? JSON.parse(storedNotes) : [];
+// Helper to be called by frontend when adding category
+export async function createCategory(name, parentId = null) {
+    const id = Date.now(); 
+    const success = await categoryApi.createCategory(id, name, parentId);
+    
+    if (success) {
+        // Reload to get fresh tree
+        await loadCategories();
+        return true;
+    }
+    return false;
+}
+
+export async function loadNotes() {
+    allNotes = await noteApi.getAllNotes();
     return allNotes;
 }
 
-export function saveNotes() {
-    localStorage.setItem(APP_NOTES_STORAGE_KEY, JSON.stringify(allNotes));
+export async function saveNotes() {
+    console.warn('saveNotes is deprecated. Use API directly.');
 }
 
-// Initialize
-loadCategories();
-loadNotes();
-loadReviewModes();
+// New helper for saving a single note
+export async function saveSingleNote(note) {
+    const success = await noteApi.saveNote(note);
+    
+    if (success) {
+        // Update local cache
+        const index = allNotes.findIndex(n => n.id === note.id);
+        if (index !== -1) {
+            allNotes[index] = note;
+        } else {
+            allNotes.push(note);
+        }
+        return true;
+    }
+    return false;
+}
+
+export async function deleteNote(id) {
+    const success = await noteApi.deleteNote(id);
+    
+    if (success) {
+        const index = allNotes.findIndex(n => n.id === id);
+        if (index !== -1) {
+            allNotes.splice(index, 1);
+        }
+        return true;
+    }
+    return false;
+}
+
+// Initialize (Async now)
+(async () => {
+    await loadReviewModes();
+    await loadCategories();
+    await loadNotes();
+})();
+

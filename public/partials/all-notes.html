@@ -18,16 +18,6 @@
         </div>
         <div class="panel-content">
             <!-- 笔记列表将在这里动态生成 -->
-            <div class="note-item selected">
-                <h3>模板的作用&作用域插槽</h3>
-                <p class="note-excerpt">另外有时间可以认真看下...</p>
-                <span class="note-date">2025-11-12</span>
-            </div>
-            <div class="note-item">
-                <h3>Vue 和 Element Plus 表单验证</h3>
-                <p class="note-excerpt">depformRef 和它的 .validate() ...</p>
-                <span class="note-date">2025-11-12</span>
-            </div>
             <p class="placeholder-text">请先在左侧选择一个分类。</p>
         </div>
     </div>
@@ -35,7 +25,7 @@
     <!-- 第三栏：笔记预览面板 -->
     <div id="note-preview-panel" class="notes-panel">
         <div class="panel-header">
-            <h2>模板的作用&作用域插槽 (Scoped Slot)</h2>
+            <h2>笔记预览</h2>
             <div class="header-actions">
                 <button id="edit-note-btn" class="action-btn-secondary-circle" title="编辑笔记"><i class="fas fa-pen"></i></button>
                 <button class="action-btn-secondary-circle" title="更多操作"><i class="fas fa-ellipsis-v"></i></button>
@@ -43,8 +33,7 @@
         </div>
         <div class="panel-content ql-editor">
             <!-- 笔记内容将在这里动态渲染 -->
-            <p>另外有时间可以认真看下这篇文章，以及重点展示。</p>
-            <p>这个"scope"是个什么意思，是另一行的别称吗？ (包含名字，也包含性别...)</p>
+            <p class="placeholder-text">请选择一篇笔记进行预览。</p>
         </div>
     </div>
 </div>
