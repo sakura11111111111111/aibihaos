@@ -104,3 +104,9 @@ npm run dev
 *   [ ] **用户系统**: 引入 JWT 鉴权，支持多用户登录。
 *   [ ] **数据导出**: 实现后端直接生成 SQL 备份文件的功能。
 
+---
+
+## 🚢 6. 部署 (Deployment)
+详细的生产环境部署步骤（包含 Nginx 配置、PM2 守护等），请移步至专门的部署文档：
+👉 **[docs/DEPLOY_GUIDE.md](./docs/DEPLOY_GUIDE.md)**
+

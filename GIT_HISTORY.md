@@ -48,7 +48,11 @@
 
 ## 🤝 交接注意事项 (Handover Notes)
 
-### 1. 环境依赖
+### 1. 文档索引
+*   **架构指南**: 请参阅 `BACKEND_GUIDE.md`
+*   **部署指南**: 请参阅 `docs/DEPLOY_GUIDE.md` (新)
+
+### 2. 环境依赖
 *   **Node.js**: v14+
 *   **MySQL**: v5.7+ (必须运行在默认 3306 端口)
 *   **Database**: `advanced_notes_db` (字符集 `utf8mb4`)
