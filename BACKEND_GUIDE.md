@@ -57,4 +57,4 @@ npm run dev
 ### 代码解耦方向
 *   **Controller 层 (已完成)**：路由逻辑已拆分到 `server/controllers/` 和 `server/routes/`，实现了 MVC 架构的 Controller 层和 Route 层分离。
 *   **Model 层**：目前仍使用原生 SQL，后续可以引入 Sequelize 或 TypeORM 等 ORM 库。
-*   **前端 API 层**：建议将 `store.js` 中的 `fetch` 调用封装到独立的 `api/` 模块中，统一处理错误和拦截器。
+*   **前端 API 层 (已完成)**：已将 `store.js` 中的 `fetch` 调用封装到独立的 `src/api/` 模块中，统一管理网络请求。
