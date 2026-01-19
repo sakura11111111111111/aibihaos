@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
+const path = require('path');
 const db = require('./config/db');
 
 // Load env vars with override to ensure .env takes precedence over system vars
@@ -56,6 +57,14 @@ app.post('/api/clear-all-data', async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Failed to clear data', error: error.message });
     }
+});
+
+// Serve static files from the frontend build directory
+app.use(express.static(path.join(__dirname, '../dist')));
+
+// Handle SPA routing: serve index.html for all non-API routes
+app.get(/.*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '../dist/index.html'));
 });
 
 // Start server
